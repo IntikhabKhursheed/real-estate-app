@@ -1,5 +1,10 @@
 // Load environment variables from .env first before any imports access them
-require('dotenv').config();
+const path = require('path');
+const dotenvResult = require('dotenv').config({ path: path.join(__dirname, '../.env') });
+
+if (dotenvResult.error) {
+  console.error('ERROR: Failed to load .env file:', dotenvResult.error);
+}
 
 const express = require('express');
 const mongoose = require('mongoose');
