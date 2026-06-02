@@ -1,11 +1,12 @@
+// Load environment variables from .env first before any imports access them
+require('dotenv').config();
+
 const express = require('express');
 const mongoose = require('mongoose');
+const cors = require('cors');
 const authRoutes = require('./routes/authRoutes');
 const propertyRoutes = require('./routes/propertyRoutes');
 const valuationRoutes = require('./routes/valuationRoutes');
-
-// Load environment variables from .env
-require('dotenv').config();
 
 const app = express();
 
@@ -16,6 +17,7 @@ mongoose.connect(mongoURI)
   .catch(err => console.error('MongoDB connection error:', err));
 
 // Middleware
+app.use(cors());
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 
@@ -24,12 +26,10 @@ app.use('/api/auth', authRoutes);
 app.use('/api/properties', propertyRoutes);
 app.use('/api/valuation', valuationRoutes);
 
-// Start server if run directly
+// Start server
 const PORT = process.env.PORT || 5000;
-if (require.main === module) {
-  app.listen(PORT, () => {
-    console.log(`Server running on port ${PORT}`);
-  });
-}
+app.listen(PORT, () => {
+  console.log(`EstateIQ Server Running on Port ${PORT}`);
+});
 
 module.exports = app;
