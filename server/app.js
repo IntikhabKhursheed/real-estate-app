@@ -20,6 +20,8 @@ const cors = require('cors');
 const authRoutes = require('./routes/authRoutes');
 const propertyRoutes = require('./routes/propertyRoutes');
 const valuationRoutes = require('./routes/valuationRoutes');
+const searchRoutes = require('./routes/searchRoutes');
+const investmentRoutes = require('./routes/investmentRoutes');
 
 const app = express();
 
@@ -37,6 +39,8 @@ app.use(express.urlencoded({ extended: true }));
 // Register routes
 app.use('/api/auth', authRoutes);
 app.use('/api/properties', propertyRoutes);
+app.use('/api/properties', searchRoutes);
+app.use('/api/properties', investmentRoutes);
 app.use('/api/valuation', valuationRoutes);
 
 // Start server
