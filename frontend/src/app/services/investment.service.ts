@@ -1,12 +1,19 @@
 import { Injectable } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { Observable } from 'rxjs';
+import { map } from 'rxjs/operators';
 
 export interface InvestmentResponse {
   investmentScore: number;
   confidence: number;
   reasoning: string;
   recommendation: string;
+}
+
+interface ApiResponse<T> {
+  success: boolean;
+  message: string;
+  data: T;
 }
 
 @Injectable({
@@ -18,6 +25,8 @@ export class InvestmentService {
   constructor(private http: HttpClient) { }
 
   calculateInvestment(propertyId: string): Observable<InvestmentResponse> {
-    return this.http.post<InvestmentResponse>(this.apiUrl, { propertyId });
+    return this.http.post<ApiResponse<InvestmentResponse>>(this.apiUrl, { propertyId }).pipe(
+      map(response => response.data)
+    );
   }
 }

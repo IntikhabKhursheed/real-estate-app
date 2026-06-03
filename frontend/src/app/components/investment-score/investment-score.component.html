@@ -61,7 +61,7 @@
               </div>
 
               <!-- Amenities -->
-              <div *ngIf="property.amenities.length > 0" class="border-t border-gray-200 dark:border-gray-700 pt-3">
+              <div *ngIf="property.amenities && property.amenities.length > 0" class="border-t border-gray-200 dark:border-gray-700 pt-3">
                 <p class="text-sm text-gray-600 dark:text-gray-400 mb-2">Amenities</p>
                 <div class="flex flex-wrap gap-2">
                   <span *ngFor="let amenity of property.amenities"

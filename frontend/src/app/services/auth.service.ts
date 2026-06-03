@@ -1,7 +1,7 @@
 import { Injectable } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { Observable, BehaviorSubject } from 'rxjs';
-import { tap } from 'rxjs/operators';
+import { tap, map } from 'rxjs/operators';
 
 export interface RegisterRequest {
   fullName: string;
@@ -24,6 +24,12 @@ export interface AuthResponse {
   };
 }
 
+interface ApiResponse<T> {
+  success: boolean;
+  message: string;
+  data: T;
+}
+
 @Injectable({
   providedIn: 'root'
 })
@@ -43,9 +49,10 @@ export class AuthService {
   }
 
   register(data: RegisterRequest): Observable<AuthResponse> {
-    return this.http.post<AuthResponse>(`${this.apiUrl}/register`, data).pipe(
+    return this.http.post<ApiResponse<AuthResponse>>(`${this.apiUrl}/register`, data).pipe(
+      map(response => response.data),
       tap(response => {
-        if (response.token) {
+        if (response && response.token) {
           this.setToken(response.token);
           this.setUser(response.user);
           this.isAuthenticatedSubject.next(true);
@@ -56,9 +63,10 @@ export class AuthService {
   }
 
   login(data: LoginRequest): Observable<AuthResponse> {
-    return this.http.post<AuthResponse>(`${this.apiUrl}/login`, data).pipe(
+    return this.http.post<ApiResponse<AuthResponse>>(`${this.apiUrl}/login`, data).pipe(
+      map(response => response.data),
       tap(response => {
-        if (response.token) {
+        if (response && response.token) {
           this.setToken(response.token);
           this.setUser(response.user);
           this.isAuthenticatedSubject.next(true);
