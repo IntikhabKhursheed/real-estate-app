@@ -42,7 +42,7 @@ export class PropertySearchComponent implements OnInit {
 
     this.propertyService.searchProperties(query).subscribe({
       next: (response) => {
-        this.results = response.properties || [];
+        this.results = response.results || [];
         this.aiReasoning = response.reasoning || null;
         this.hasSearched = true;
         this.isLoading = false;

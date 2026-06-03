@@ -1,7 +1,10 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, OnInit, OnDestroy } from '@angular/core';
 import { RouterLink } from '@angular/router';
 import { PropertyService } from '../../services/property.service';
 import { CommonModule } from '@angular/common';
+import { AuthService } from '../../services/auth.service';
+import { Subject } from 'rxjs';
+import { takeUntil } from 'rxjs/operators';
 
 @Component({
   selector: 'app-home',
@@ -27,7 +30,7 @@ export class HomeComponent implements OnInit {
     this.propertyService.getProperties().subscribe({
       next: (properties) => {
         // Get first 3 properties as featured
-        this.featuredProperties = properties.slice(0, 3);
+        this.featuredProperties = (properties || []).slice(0, 3);
         this.isLoading = false;
       },
       error: (err) => {

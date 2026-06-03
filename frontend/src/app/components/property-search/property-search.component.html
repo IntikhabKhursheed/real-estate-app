@@ -110,7 +110,7 @@
             </div>
 
             <!-- Amenities -->
-            <div class="mb-4">
+            <div class="mb-4" *ngIf="property.amenities && property.amenities.length > 0">
               <div class="flex flex-wrap gap-2">
                 <span *ngFor="let amenity of property.amenities" 
                       class="inline-block bg-blue-100 dark:bg-blue-900 text-blue-800 dark:text-blue-200 text-xs px-2 py-1 rounded">

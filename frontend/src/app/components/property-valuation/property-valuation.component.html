@@ -132,9 +132,9 @@
           <div class="bg-gradient-to-r from-purple-50 to-pink-50 dark:from-purple-900 dark:to-pink-900 p-6 rounded-lg">
             <p class="text-gray-600 dark:text-gray-400 mb-2">Confidence Score</p>
             <div class="flex items-center gap-4">
-              <p class="text-3xl font-bold text-purple-600 dark:text-purple-400">{{ (result.confidence * 100).toFixed(0) }}%</p>
+              <p class="text-3xl font-bold text-purple-600 dark:text-purple-400">{{ (result.confidence ? (result.confidence * 100).toFixed(0) : '0') }}%</p>
               <div class="flex-1 bg-gray-300 dark:bg-gray-600 rounded-full h-2">
-                <div class="bg-purple-600 dark:bg-purple-400 h-2 rounded-full" [style.width.%]="result.confidence * 100"></div>
+                <div class="bg-purple-600 dark:bg-purple-400 h-2 rounded-full" [style.width.%]="result.confidence ? result.confidence * 100 : 0"></div>
               </div>
             </div>
           </div>
