@@ -1,12 +1,13 @@
 import { NgModule } from '@angular/core';
 import { BrowserModule } from '@angular/platform-browser';
-import { HttpClientModule } from '@angular/common/http';
+import { HttpClientModule, HTTP_INTERCEPTORS } from '@angular/common/http';
 import { RouterModule } from '@angular/router';
 import { FormsModule, ReactiveFormsModule } from '@angular/forms';
 import { CommonModule } from '@angular/common';
 
 import { AppComponent } from './app.component';
 import { AppRoutingModule } from './app-routing.module';
+import { AuthInterceptor } from './interceptors/auth.interceptor';
 
 // Components
 import { NavbarComponent } from './components/navbar/navbar.component';
@@ -16,11 +17,14 @@ import { PropertyListComponent } from './components/property-list/property-list.
 import { PropertyValuationComponent } from './components/property-valuation/property-valuation.component';
 import { PropertySearchComponent } from './components/property-search/property-search.component';
 import { InvestmentScoreComponent } from './components/investment-score/investment-score.component';
+import { LoginComponent } from './components/login/login.component';
+import { RegisterComponent } from './components/register/register.component';
 
 // Services
 import { PropertyService } from './services/property.service';
 import { ValuationService } from './services/valuation.service';
 import { InvestmentService } from './services/investment.service';
+import { AuthService } from './services/auth.service';
 
 @NgModule({
   declarations: [
@@ -31,7 +35,9 @@ import { InvestmentService } from './services/investment.service';
     PropertyListComponent,
     PropertyValuationComponent,
     PropertySearchComponent,
-    InvestmentScoreComponent
+    InvestmentScoreComponent,
+    LoginComponent,
+    RegisterComponent
   ],
   imports: [
     BrowserModule,
@@ -45,7 +51,13 @@ import { InvestmentService } from './services/investment.service';
   providers: [
     PropertyService,
     ValuationService,
-    InvestmentService
+    InvestmentService,
+    AuthService,
+    {
+      provide: HTTP_INTERCEPTORS,
+      useClass: AuthInterceptor,
+      multi: true
+    }
   ],
   bootstrap: [AppComponent]
 })

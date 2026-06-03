@@ -56,8 +56,15 @@ export class PropertyValuationComponent implements OnInit {
     this.error = null;
     this.result = null;
 
+    const formValue = this.form.value;
     const valuationData = {
-      ...this.form.value,
+      city: formValue.city,
+      country: formValue.country,
+      propertyType: formValue.type,
+      bedrooms: formValue.bedrooms,
+      bathrooms: formValue.bathrooms,
+      areaSqFt: formValue.area,
+      propertyAge: formValue.age,
       amenities: this.selectedAmenities
     };
 

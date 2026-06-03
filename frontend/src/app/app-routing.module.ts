@@ -5,9 +5,13 @@ import { PropertyListComponent } from './components/property-list/property-list.
 import { PropertyValuationComponent } from './components/property-valuation/property-valuation.component';
 import { PropertySearchComponent } from './components/property-search/property-search.component';
 import { InvestmentScoreComponent } from './components/investment-score/investment-score.component';
+import { LoginComponent } from './components/login/login.component';
+import { RegisterComponent } from './components/register/register.component';
 
 export const routes: Routes = [
   { path: '', component: HomeComponent },
+  { path: 'login', component: LoginComponent },
+  { path: 'register', component: RegisterComponent },
   { path: 'properties', component: PropertyListComponent },
   { path: 'valuation', component: PropertyValuationComponent },
   { path: 'search', component: PropertySearchComponent },

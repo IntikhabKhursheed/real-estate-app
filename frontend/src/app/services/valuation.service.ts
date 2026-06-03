@@ -5,12 +5,12 @@ import { Observable } from 'rxjs';
 export interface ValuationRequest {
   city: string;
   country: string;
-  type: string;
+  propertyType: string;
   bedrooms: number;
   bathrooms: number;
-  area: number;
-  age: number;
-  amenities: string[];
+  areaSqFt: number;
+  propertyAge?: number;
+  amenities?: string[];
 }
 
 export interface ValuationResponse {
