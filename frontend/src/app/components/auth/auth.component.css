@@ -1,0 +1,77 @@
+/* Auth Component Styles */
+
+:host {
+  display: block;
+  background: linear-gradient(to bottom right, #f0f9ff, #e0e7ff);
+}
+
+:host.dark {
+  background: linear-gradient(to bottom right, #111827, #1f2937);
+}
+
+/* Animations */
+@keyframes slideInUp {
+  from {
+    opacity: 0;
+    transform: translateY(30px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
+
+.bg-gradient-to-br {
+  animation: slideInUp 0.5s ease-out;
+}
+
+/* Smooth transitions for form elements */
+input {
+  transition: all 0.3s ease;
+}
+
+input:focus {
+  transform: translateY(-2px);
+}
+
+button:disabled {
+  cursor: not-allowed;
+}
+
+/* Spinner animation */
+@keyframes spin {
+  from {
+    transform: rotate(0deg);
+  }
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+.animate-spin {
+  animation: spin 1s linear infinite;
+}
+
+/* Tab styling */
+.border-b-2 {
+  transition: all 0.3s ease;
+}
+
+/* Hover effects */
+button:not(:disabled):hover {
+  transform: translateY(-2px);
+}
+
+/* Message animations */
+[class*="bg-red-"], [class*="bg-green-"] {
+  animation: slideInUp 0.3s ease-out;
+}

@@ -7,15 +7,18 @@ import { PropertySearchComponent } from './components/property-search/property-s
 import { InvestmentScoreComponent } from './components/investment-score/investment-score.component';
 import { LoginComponent } from './components/login/login.component';
 import { RegisterComponent } from './components/register/register.component';
+import { AuthComponent } from './components/auth/auth.component';
+import { AuthGuard } from './guards/auth.guard';
 
 export const routes: Routes = [
-  { path: '', component: HomeComponent },
-  { path: 'login', component: LoginComponent },
-  { path: 'register', component: RegisterComponent },
-  { path: 'properties', component: PropertyListComponent },
-  { path: 'valuation', component: PropertyValuationComponent },
-  { path: 'search', component: PropertySearchComponent },
-  { path: 'investment/:id', component: InvestmentScoreComponent },
+  { path: '', component: HomeComponent, canActivate: [AuthGuard] },
+  { path: 'auth', component: AuthComponent },
+  { path: 'login', component: LoginComponent, canActivate: [AuthGuard] },
+  { path: 'register', component: RegisterComponent, canActivate: [AuthGuard] },
+  { path: 'properties', component: PropertyListComponent, canActivate: [AuthGuard] },
+  { path: 'valuation', component: PropertyValuationComponent, canActivate: [AuthGuard] },
+  { path: 'search', component: PropertySearchComponent, canActivate: [AuthGuard] },
+  { path: 'investment/:id', component: InvestmentScoreComponent, canActivate: [AuthGuard] },
   { path: '**', redirectTo: '' }
 ];
 

@@ -19,6 +19,7 @@ import { PropertySearchComponent } from './components/property-search/property-s
 import { InvestmentScoreComponent } from './components/investment-score/investment-score.component';
 import { LoginComponent } from './components/login/login.component';
 import { RegisterComponent } from './components/register/register.component';
+import { AuthComponent } from './components/auth/auth.component';
 
 // Services
 import { PropertyService } from './services/property.service';
@@ -37,7 +38,8 @@ import { AuthService } from './services/auth.service';
     PropertySearchComponent,
     InvestmentScoreComponent,
     LoginComponent,
-    RegisterComponent
+    RegisterComponent,
+    AuthComponent
   ],
   imports: [
     BrowserModule,

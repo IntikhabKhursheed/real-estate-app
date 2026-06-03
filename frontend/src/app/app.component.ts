@@ -1,4 +1,5 @@
 import { Component, OnInit } from '@angular/core';
+import { Router, NavigationEnd } from '@angular/router';
 import { RouterOutlet } from '@angular/router';
 
 @Component({
@@ -9,6 +10,9 @@ import { RouterOutlet } from '@angular/router';
 })
 export class AppComponent implements OnInit {
   title = 'EstateIQ';
+  showNavbarFooter: boolean = true;
+
+  constructor(private router: Router) {}
 
   ngOnInit(): void {
     // Initialize theme from localStorage
@@ -16,5 +20,12 @@ export class AppComponent implements OnInit {
     if (theme === 'dark') {
       document.documentElement.classList.add('dark');
     }
+
+    // Hide navbar and footer on auth page
+    this.router.events.subscribe(event => {
+      if (event instanceof NavigationEnd) {
+        this.showNavbarFooter = !event.url.includes('/auth');
+      }
+    });
   }
 }
