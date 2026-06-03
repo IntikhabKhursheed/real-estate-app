@@ -1,4 +1,28 @@
-const User = require('../models/User');
+const path = require('path');
+require('dotenv').config({ path: path.join(__dirname, '../.env') });
+
+const express = require('express');
+const mongoose = require('mongoose');
+const cors = require('cors');
+
+const app = express();
+
+// Middleware
+app.use(cors());
+app.use(express.json());
+app.use(express.urlencoded({ extended: true }));
+
+console.log('[APP] Starting minimal EstateIQ server...');
+
+// Connect to MongoDB
+const mongoURI = process.env.MONGODB_URI || 'mongodb://127.0.0.1:27017/estateiq';
+console.log('[APP] Connecting to MongoDB...');
+mongoose.connect(mongoURI)
+  .then(() => console.log('[APP] MongoDB connected successfully'))
+  .catch(err => console.error('[APP] MongoDB connection error:', err.message));
+
+// Direct inline auth routes - no external route file
+const User = require('./models/User');
 const jwt = require('jsonwebtoken');
 
 const generateToken = (user) => {
@@ -9,15 +33,13 @@ const generateToken = (user) => {
   );
 };
 
-exports.register = async (req, res) => {
+// POST /api/auth/register - inline handler
+app.post('/api/auth/register', async (req, res) => {
   try {
-    console.log('[REGISTER] Request received with data:', req.body);
-    
-    const { fullName, email, password, role } = req.body;
+    console.log('[REGISTER] Received request');
+    const { fullName, email, password } = req.body;
 
-    // Validate required fields
     if (!fullName || !email || !password) {
-      console.log('[REGISTER] Missing required fields');
       return res.status(400).json({
         success: false,
         message: 'fullName, email, and password are required',
@@ -25,32 +47,8 @@ exports.register = async (req, res) => {
       });
     }
 
-    // Validate email format
-    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-    if (!emailRegex.test(email)) {
-      console.log('[REGISTER] Invalid email format');
-      return res.status(400).json({
-        success: false,
-        message: 'Invalid email format',
-        data: null
-      });
-    }
-
-    // Validate password length
-    if (password.length < 6) {
-      console.log('[REGISTER] Password too short');
-      return res.status(400).json({
-        success: false,
-        message: 'Password must be at least 6 characters long',
-        data: null
-      });
-    }
-
-    // Check if user already exists
-    console.log('[REGISTER] Checking if user exists');
     const existingUser = await User.findOne({ email: email.toLowerCase() });
     if (existingUser) {
-      console.log('[REGISTER] Email already registered');
       return res.status(400).json({
         success: false,
         message: 'Email is already registered',
@@ -58,24 +56,18 @@ exports.register = async (req, res) => {
       });
     }
 
-    // Create new user
-    console.log('[REGISTER] Creating new user');
     const user = new User({
       fullName: fullName.trim(),
       email: email.toLowerCase().trim(),
       password,
-      role: role || 'agent'
+      role: 'agent'
     });
 
-    // Save user to database
-    console.log('[REGISTER] Saving user');
     await user.save();
     console.log('[REGISTER] User saved successfully');
 
-    // Generate JWT token
     const token = generateToken(user);
 
-    // Return success response
     return res.status(201).json({
       success: true,
       message: 'User registered successfully',
@@ -85,32 +77,27 @@ exports.register = async (req, res) => {
           id: user._id,
           fullName: user.fullName,
           email: user.email,
-          role: user.role,
-          createdAt: user.createdAt
+          role: user.role
         }
       }
     });
-
   } catch (error) {
-    console.error('[REGISTER] Exception caught:', error.message);
-    console.error('[REGISTER] Stack trace:', error.stack);
+    console.error('[REGISTER] Error:', error.message);
     return res.status(500).json({
       success: false,
       message: error.message,
       data: null
     });
   }
-};
+});
 
-exports.login = async (req, res) => {
+// POST /api/auth/login - inline handler
+app.post('/api/auth/login', async (req, res) => {
   try {
-    console.log('[LOGIN] Request received');
-    
+    console.log('[LOGIN] Received request');
     const { email, password } = req.body;
 
-    // Validate required fields
     if (!email || !password) {
-      console.log('[LOGIN] Missing email or password');
       return res.status(400).json({
         success: false,
         message: 'Email and password are required',
@@ -118,11 +105,8 @@ exports.login = async (req, res) => {
       });
     }
 
-    // Find user by email
-    console.log('[LOGIN] Looking up user');
     const user = await User.findOne({ email: email.toLowerCase().trim() });
     if (!user) {
-      console.log('[LOGIN] User not found');
       return res.status(401).json({
         success: false,
         message: 'Invalid email or password',
@@ -130,11 +114,8 @@ exports.login = async (req, res) => {
       });
     }
 
-    // Compare password
-    console.log('[LOGIN] Comparing passwords');
     const isMatch = await user.comparePassword(password);
     if (!isMatch) {
-      console.log('[LOGIN] Password mismatch');
       return res.status(401).json({
         success: false,
         message: 'Invalid email or password',
@@ -142,11 +123,9 @@ exports.login = async (req, res) => {
       });
     }
 
-    // Generate token
     const token = generateToken(user);
-
-    // Return success response
     console.log('[LOGIN] Login successful');
+
     return res.status(200).json({
       success: true,
       message: 'Login successful',
@@ -156,19 +135,38 @@ exports.login = async (req, res) => {
           id: user._id,
           fullName: user.fullName,
           email: user.email,
-          role: user.role,
-          createdAt: user.createdAt
+          role: user.role
         }
       }
     });
-
   } catch (error) {
-    console.error('[LOGIN] Exception caught:', error.message);
-    console.error('[LOGIN] Stack trace:', error.stack);
+    console.error('[LOGIN] Error:', error.message);
     return res.status(500).json({
       success: false,
       message: error.message,
       data: null
     });
   }
-};
+});
+
+// Health check
+app.get('/health', (req, res) => {
+  res.json({ status: 'ok', message: 'Server is running' });
+});
+
+// Error handler
+app.use((err, req, res, next) => {
+  console.error('[ERROR HANDLER]', err.message);
+  res.status(500).json({
+    success: false,
+    message: err.message,
+    data: null
+  });
+});
+
+const PORT = process.env.PORT || 5000;
+app.listen(PORT, () => {
+  console.log(`[APP] EstateIQ Server Running on Port ${PORT}`);
+});
+
+module.exports = app;
