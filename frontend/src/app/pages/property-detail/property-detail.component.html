@@ -1,0 +1,215 @@
+<section class="min-h-screen bg-gray-50 py-6 transition-colors duration-300 dark:bg-gray-950">
+  <div class="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
+    <a routerLink="/properties"
+       class="mb-5 inline-flex items-center gap-2 rounded-lg border border-gray-200 bg-white px-4 py-2 text-sm font-semibold text-gray-700 shadow-sm transition hover:border-blue-300 hover:text-blue-700 dark:border-gray-800 dark:bg-gray-900 dark:text-gray-200 dark:hover:border-blue-700 dark:hover:text-blue-300">
+      <span aria-hidden="true">&larr;</span>
+      Back to listings
+    </a>
+
+    <div *ngIf="isPropertyLoading" class="space-y-6 animate-pulse">
+      <div class="h-80 rounded-lg bg-gray-200 dark:bg-gray-800"></div>
+      <div class="grid gap-6 lg:grid-cols-[minmax(0,1fr)_360px]">
+        <div class="space-y-4">
+          <div class="h-10 w-3/4 rounded bg-gray-200 dark:bg-gray-800"></div>
+          <div class="h-6 w-1/2 rounded bg-gray-200 dark:bg-gray-800"></div>
+          <div class="grid gap-4 sm:grid-cols-3">
+            <div class="h-24 rounded-lg bg-gray-200 dark:bg-gray-800"></div>
+            <div class="h-24 rounded-lg bg-gray-200 dark:bg-gray-800"></div>
+            <div class="h-24 rounded-lg bg-gray-200 dark:bg-gray-800"></div>
+          </div>
+          <div class="h-48 rounded-lg bg-gray-200 dark:bg-gray-800"></div>
+        </div>
+        <div class="space-y-4">
+          <div class="h-44 rounded-lg bg-gray-200 dark:bg-gray-800"></div>
+          <div class="h-56 rounded-lg bg-gray-200 dark:bg-gray-800"></div>
+        </div>
+      </div>
+    </div>
+
+    <div *ngIf="propertyError && !isPropertyLoading"
+         class="rounded-lg border border-red-200 bg-red-50 p-5 text-red-700 dark:border-red-900 dark:bg-red-950/40 dark:text-red-300">
+      <p class="font-semibold">{{ propertyError }}</p>
+      <button type="button" (click)="loadProperty()" class="mt-3 rounded-lg bg-red-600 px-4 py-2 text-sm font-semibold text-white hover:bg-red-700">
+        Try again
+      </button>
+    </div>
+
+    <article *ngIf="property as p" class="space-y-6">
+      <div class="relative h-80 overflow-hidden rounded-lg bg-gray-200 shadow-sm dark:bg-gray-900 md:h-[430px]">
+        <img *ngIf="heroImage as image; else heroPlaceholder"
+             [src]="image"
+             [alt]="p.title"
+             class="h-full w-full object-cover">
+
+        <ng-template #heroPlaceholder>
+          <div class="flex h-full w-full items-center justify-center bg-gradient-to-br from-slate-100 via-blue-50 to-indigo-100 dark:from-gray-900 dark:via-gray-900 dark:to-blue-950">
+            <div class="text-center">
+              <div class="mx-auto mb-4 flex h-20 w-20 items-center justify-center rounded-lg border border-blue-200 bg-white text-3xl font-bold text-blue-600 shadow-sm dark:border-blue-900 dark:bg-gray-900 dark:text-blue-300">
+                EI
+              </div>
+              <p class="text-sm font-semibold uppercase tracking-wide text-gray-500 dark:text-gray-400">Property image coming soon</p>
+            </div>
+          </div>
+        </ng-template>
+
+        <div class="absolute bottom-4 left-4 right-4 flex flex-wrap gap-2">
+          <span class="rounded-lg bg-white/95 px-3 py-2 text-sm font-bold text-gray-900 shadow-sm dark:bg-gray-950/90 dark:text-white">
+            {{ propertyTypeLabel }}
+          </span>
+          <span class="rounded-lg bg-blue-600 px-3 py-2 text-sm font-bold text-white shadow-sm">
+            {{ purposeLabel }}
+          </span>
+        </div>
+      </div>
+
+      <div class="grid gap-6 lg:grid-cols-[minmax(0,1fr)_360px]">
+        <main class="space-y-6">
+          <section class="rounded-lg border border-gray-200 bg-white p-6 shadow-sm dark:border-gray-800 dark:bg-gray-900">
+            <div class="flex flex-col gap-5 md:flex-row md:items-start md:justify-between">
+              <div>
+                <h1 class="text-3xl font-bold text-gray-950 dark:text-white md:text-4xl">{{ p.title }}</h1>
+                <p class="mt-3 text-base text-gray-600 dark:text-gray-300">{{ locationLine }}</p>
+                <p class="mt-1 text-sm text-gray-500 dark:text-gray-400">{{ addressLine }}</p>
+              </div>
+              <div class="md:text-right">
+                <p class="text-sm font-semibold uppercase tracking-wide text-gray-500 dark:text-gray-400">Asking price</p>
+                <p class="mt-1 text-3xl font-bold text-blue-600 dark:text-blue-400">{{ formatCurrency(p.price) }}</p>
+              </div>
+            </div>
+
+            <div class="mt-6 grid gap-3 sm:grid-cols-2 lg:grid-cols-4">
+              <div class="rounded-lg bg-gray-50 p-4 dark:bg-gray-800">
+                <p class="text-xs font-semibold uppercase tracking-wide text-gray-500 dark:text-gray-400">Bedrooms</p>
+                <p class="mt-2 text-2xl font-bold text-gray-950 dark:text-white">{{ p.bedrooms || 0 }}</p>
+              </div>
+              <div class="rounded-lg bg-gray-50 p-4 dark:bg-gray-800">
+                <p class="text-xs font-semibold uppercase tracking-wide text-gray-500 dark:text-gray-400">Bathrooms</p>
+                <p class="mt-2 text-2xl font-bold text-gray-950 dark:text-white">{{ p.bathrooms || 0 }}</p>
+              </div>
+              <div class="rounded-lg bg-gray-50 p-4 dark:bg-gray-800 sm:col-span-2">
+                <p class="text-xs font-semibold uppercase tracking-wide text-gray-500 dark:text-gray-400">Area</p>
+                <p class="mt-2 text-2xl font-bold text-gray-950 dark:text-white">{{ areaLabel }}</p>
+              </div>
+              <div class="rounded-lg bg-gray-50 p-4 dark:bg-gray-800 sm:col-span-2 lg:col-span-4">
+                <p class="text-xs font-semibold uppercase tracking-wide text-gray-500 dark:text-gray-400">Price per sqft</p>
+                <p class="mt-2 text-2xl font-bold text-gray-950 dark:text-white">{{ pricePerSqFt }}</p>
+              </div>
+            </div>
+          </section>
+
+          <section class="rounded-lg border border-gray-200 bg-white p-6 shadow-sm dark:border-gray-800 dark:bg-gray-900">
+            <h2 class="text-xl font-bold text-gray-950 dark:text-white">Description</h2>
+            <p class="mt-4 leading-7 text-gray-700 dark:text-gray-300">{{ p.description || 'No description provided yet.' }}</p>
+          </section>
+
+          <section class="rounded-lg border border-gray-200 bg-white p-6 shadow-sm dark:border-gray-800 dark:bg-gray-900">
+            <h2 class="text-xl font-bold text-gray-950 dark:text-white">Features</h2>
+            <div *ngIf="features.length > 0; else noFeatures" class="mt-4 grid gap-3 sm:grid-cols-2">
+              <div *ngFor="let feature of features; trackBy: trackByText" class="flex items-center gap-3 rounded-lg bg-gray-50 px-4 py-3 dark:bg-gray-800">
+                <span class="h-2 w-2 rounded-full bg-blue-500"></span>
+                <span class="font-medium text-gray-800 dark:text-gray-200">{{ feature }}</span>
+              </div>
+            </div>
+            <ng-template #noFeatures>
+              <p class="mt-4 text-gray-600 dark:text-gray-400">No features listed yet.</p>
+            </ng-template>
+          </section>
+        </main>
+
+        <aside class="space-y-6">
+          <section class="rounded-lg border border-gray-200 bg-white p-6 shadow-sm dark:border-gray-800 dark:bg-gray-900">
+            <p class="text-sm font-semibold uppercase tracking-wide text-gray-500 dark:text-gray-400">Agent contact</p>
+            <h2 class="mt-2 text-2xl font-bold text-gray-950 dark:text-white">{{ agentName }}</h2>
+            <div class="mt-5 space-y-3 text-sm">
+              <a *ngIf="agentPhone; else noPhone" [href]="'tel:' + agentPhone" class="block rounded-lg bg-gray-50 px-4 py-3 font-semibold text-gray-800 hover:text-blue-700 dark:bg-gray-800 dark:text-gray-200 dark:hover:text-blue-300">
+                {{ agentPhone }}
+              </a>
+              <ng-template #noPhone>
+                <p class="rounded-lg bg-gray-50 px-4 py-3 text-gray-500 dark:bg-gray-800 dark:text-gray-400">Phone not listed</p>
+              </ng-template>
+
+              <a *ngIf="agentEmail; else noEmail" [href]="'mailto:' + agentEmail" class="block rounded-lg bg-gray-50 px-4 py-3 font-semibold text-gray-800 hover:text-blue-700 dark:bg-gray-800 dark:text-gray-200 dark:hover:text-blue-300">
+                {{ agentEmail }}
+              </a>
+              <ng-template #noEmail>
+                <p class="rounded-lg bg-gray-50 px-4 py-3 text-gray-500 dark:bg-gray-800 dark:text-gray-400">Email not listed</p>
+              </ng-template>
+            </div>
+          </section>
+
+          <section class="rounded-lg border border-gray-200 bg-white p-6 shadow-sm dark:border-gray-800 dark:bg-gray-900">
+            <div class="flex items-start justify-between gap-4">
+              <div>
+                <p class="text-sm font-semibold uppercase tracking-wide text-gray-500 dark:text-gray-400">AI Investment Score</p>
+                <h2 class="mt-2 text-xl font-bold text-gray-950 dark:text-white">Investment outlook</h2>
+              </div>
+              <span *ngIf="investment && !isInvestmentLoading"
+                    [ngClass]="getScoreBadgeClass(investmentScore)"
+                    class="rounded-lg border px-3 py-1 text-sm font-bold">
+                {{ investmentLabel }}
+              </span>
+            </div>
+
+            <div *ngIf="isInvestmentLoading" class="mt-6 space-y-4 animate-pulse">
+              <div class="h-12 w-32 rounded bg-gray-200 dark:bg-gray-800"></div>
+              <div class="h-3 rounded bg-gray-200 dark:bg-gray-800"></div>
+              <div class="h-20 rounded bg-gray-200 dark:bg-gray-800"></div>
+            </div>
+
+            <div *ngIf="investmentError && !isInvestmentLoading" class="mt-5 rounded-lg border border-amber-200 bg-amber-50 p-4 text-sm text-amber-800 dark:border-amber-900 dark:bg-amber-950/40 dark:text-amber-200">
+              <p>{{ investmentError }}</p>
+              <button type="button" (click)="loadInvestmentScore()" class="mt-3 font-bold text-amber-900 underline dark:text-amber-100">Retry</button>
+            </div>
+
+            <div *ngIf="investment && !isInvestmentLoading" class="mt-6">
+              <div class="flex items-end gap-2">
+                <p [ngClass]="getScoreTextClass(investmentScore)" class="text-5xl font-black">{{ investmentScore }}</p>
+                <p class="pb-2 text-lg font-bold text-gray-500 dark:text-gray-400">/100</p>
+              </div>
+              <div class="mt-4 h-3 overflow-hidden rounded-full bg-gray-200 dark:bg-gray-800">
+                <div [ngClass]="getScoreBarClass(investmentScore)" class="h-full rounded-full" [style.width.%]="investmentScore"></div>
+              </div>
+              <p class="mt-4 text-sm font-medium text-gray-600 dark:text-gray-300">
+                Confidence: {{ formatConfidence(investment.confidence) }}
+              </p>
+              <ul *ngIf="investmentReasoning.length > 0" class="mt-4 space-y-2">
+                <li *ngFor="let reason of investmentReasoning; trackBy: trackByText" class="text-sm leading-6 text-gray-700 dark:text-gray-300">
+                  {{ reason }}
+                </li>
+              </ul>
+            </div>
+          </section>
+
+          <section class="rounded-lg border border-gray-200 bg-white p-6 shadow-sm dark:border-gray-800 dark:bg-gray-900">
+            <p class="text-sm font-semibold uppercase tracking-wide text-gray-500 dark:text-gray-400">AI Valuation</p>
+            <h2 class="mt-2 text-xl font-bold text-gray-950 dark:text-white">Estimated market value</h2>
+
+            <div *ngIf="isValuationLoading" class="mt-6 space-y-4 animate-pulse">
+              <div class="h-12 w-44 rounded bg-gray-200 dark:bg-gray-800"></div>
+              <div class="h-20 rounded bg-gray-200 dark:bg-gray-800"></div>
+            </div>
+
+            <div *ngIf="valuationError && !isValuationLoading" class="mt-5 rounded-lg border border-amber-200 bg-amber-50 p-4 text-sm text-amber-800 dark:border-amber-900 dark:bg-amber-950/40 dark:text-amber-200">
+              <p>{{ valuationError }}</p>
+              <button type="button" (click)="loadValuation()" class="mt-3 font-bold text-amber-900 underline dark:text-amber-100">Retry</button>
+            </div>
+
+            <div *ngIf="valuation && !isValuationLoading" class="mt-6 space-y-4">
+              <div>
+                <p class="text-3xl font-black text-blue-600 dark:text-blue-400">{{ formatCurrency(valuation.estimatedPrice) }}</p>
+                <p class="mt-2 text-sm text-gray-600 dark:text-gray-400">
+                  Confidence: {{ formatConfidence(valuation.confidence) }} | Rating: {{ valuationRating }}
+                </p>
+              </div>
+              <ul *ngIf="valuationReasoning.length > 0" class="space-y-2 border-t border-gray-200 pt-4 dark:border-gray-800">
+                <li *ngFor="let reason of valuationReasoning; trackBy: trackByText" class="text-sm leading-6 text-gray-700 dark:text-gray-300">
+                  {{ reason }}
+                </li>
+              </ul>
+            </div>
+          </section>
+        </aside>
+      </div>
+    </article>
+  </div>
+</section>

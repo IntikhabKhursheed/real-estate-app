@@ -46,7 +46,7 @@ export class PropertyListComponent implements OnInit {
         this.properties.sort((a, b) => b.price - a.price);
         break;
       case 'area':
-        this.properties.sort((a, b) => b.area - a.area);
+        this.properties.sort((a, b) => (b.areaSqFt ?? b.area) - (a.areaSqFt ?? a.area));
         break;
       default:
         this.properties.sort((a, b) => a.title.localeCompare(b.title));

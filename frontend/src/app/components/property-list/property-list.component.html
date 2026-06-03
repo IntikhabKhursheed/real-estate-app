@@ -45,11 +45,11 @@
           <div class="grid grid-cols-2 gap-3 mb-6">
             <div class="bg-gray-50 dark:bg-gray-700 p-3 rounded">
               <p class="text-xs text-gray-600 dark:text-gray-400">Type</p>
-              <p class="font-semibold text-gray-900 dark:text-white">{{ property.type }}</p>
+              <p class="font-semibold text-gray-900 dark:text-white">{{ property.propertyType || property.type }}</p>
             </div>
             <div class="bg-gray-50 dark:bg-gray-700 p-3 rounded">
               <p class="text-xs text-gray-600 dark:text-gray-400">Price</p>
-              <p class="font-semibold text-blue-600 dark:text-blue-400">${{ (property.price | number:'1.0-0') }}</p>
+              <p class="font-semibold text-blue-600 dark:text-blue-400">PKR {{ (property.price | number:'1.0-0') }}</p>
             </div>
             <div class="bg-gray-50 dark:bg-gray-700 p-3 rounded">
               <p class="text-xs text-gray-600 dark:text-gray-400">Bedrooms</p>
@@ -61,7 +61,7 @@
             </div>
             <div class="bg-gray-50 dark:bg-gray-700 p-3 rounded">
               <p class="text-xs text-gray-600 dark:text-gray-400">Area</p>
-              <p class="font-semibold text-gray-900 dark:text-white">{{ property.area }} sq ft</p>
+              <p class="font-semibold text-gray-900 dark:text-white">{{ property.areaSqFt || property.area }} sq ft</p>
             </div>
             <div class="bg-gray-50 dark:bg-gray-700 p-3 rounded">
               <p class="text-xs text-gray-600 dark:text-gray-400">Age</p>
@@ -81,9 +81,9 @@
           </div>
 
           <!-- Action Button -->
-          <a [routerLink]="['/investment', property._id]" 
+          <a [routerLink]="['/properties', property._id]" 
              class="block w-full bg-blue-600 hover:bg-blue-700 dark:bg-blue-500 dark:hover:bg-blue-600 text-white text-center py-3 rounded-lg font-semibold transition">
-            View Investment Score
+            View Details
           </a>
         </div>
       </div>

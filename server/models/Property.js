@@ -20,6 +20,16 @@ const propertySchema = new mongoose.Schema({
     required: true,
     trim: true
   },
+  areaName: {
+    type: String,
+    trim: true,
+    default: ''
+  },
+  address: {
+    type: String,
+    trim: true,
+    default: ''
+  },
   country: {
     type: String,
     required: true,
@@ -37,10 +47,31 @@ const propertySchema = new mongoose.Schema({
     type: Number,
     required: true
   },
+  areaMarla: {
+    type: Number,
+    default: 0
+  },
   propertyType: {
     type: String,
     required: true,
     trim: true
+  },
+  purpose: {
+    type: String,
+    enum: ['Sale', 'Rent'],
+    default: 'Sale'
+  },
+  features: [{
+    type: String,
+    trim: true
+  }],
+  amenities: [{
+    type: String,
+    trim: true
+  }],
+  propertyAge: {
+    type: Number,
+    default: 0
   },
   images: [{
     type: String

@@ -7,7 +7,7 @@ exports.getAllProperties = async (req, res) => {
     if (req.query.city) filters.city = new RegExp(req.query.city, 'i');
     if (req.query.propertyType) filters.propertyType = req.query.propertyType;
 
-    const properties = await Property.find(filters).populate('createdBy', 'fullName email role');
+    const properties = await Property.find(filters).populate('createdBy', 'fullName email phone role');
 
     return res.status(200).json({
       success: true,
@@ -26,7 +26,7 @@ exports.getAllProperties = async (req, res) => {
 // GET /api/properties/:id
 exports.getPropertyById = async (req, res) => {
   try {
-    const property = await Property.findById(req.params.id).populate('createdBy', 'fullName email role');
+    const property = await Property.findById(req.params.id).populate('createdBy', 'fullName email phone role');
     if (!property) {
       return res.status(404).json({
         success: false,
@@ -56,11 +56,18 @@ exports.createProperty = async (req, res) => {
       description,
       price,
       city,
+      areaName,
+      address,
       country,
       bedrooms,
       bathrooms,
       areaSqFt,
+      areaMarla,
       propertyType,
+      purpose,
+      features,
+      amenities,
+      propertyAge,
       images
     } = req.body;
 
@@ -87,11 +94,18 @@ exports.createProperty = async (req, res) => {
       description,
       price,
       city,
+      areaName: areaName || '',
+      address: address || '',
       country,
       bedrooms,
       bathrooms,
       areaSqFt,
+      areaMarla: areaMarla || 0,
       propertyType,
+      purpose: purpose || 'Sale',
+      features: features || [],
+      amenities: amenities || [],
+      propertyAge: propertyAge || 0,
       images: images || [],
       createdBy
     });
@@ -120,11 +134,18 @@ exports.updateProperty = async (req, res) => {
       description,
       price,
       city,
+      areaName,
+      address,
       country,
       bedrooms,
       bathrooms,
       areaSqFt,
+      areaMarla,
       propertyType,
+      purpose,
+      features,
+      amenities,
+      propertyAge,
       images
     } = req.body;
 
@@ -151,11 +172,18 @@ exports.updateProperty = async (req, res) => {
     if (description !== undefined) property.description = description;
     if (price !== undefined) property.price = price;
     if (city !== undefined) property.city = city;
+    if (areaName !== undefined) property.areaName = areaName;
+    if (address !== undefined) property.address = address;
     if (country !== undefined) property.country = country;
     if (bedrooms !== undefined) property.bedrooms = bedrooms;
     if (bathrooms !== undefined) property.bathrooms = bathrooms;
     if (areaSqFt !== undefined) property.areaSqFt = areaSqFt;
+    if (areaMarla !== undefined) property.areaMarla = areaMarla;
     if (propertyType !== undefined) property.propertyType = propertyType;
+    if (purpose !== undefined) property.purpose = purpose;
+    if (features !== undefined) property.features = features;
+    if (amenities !== undefined) property.amenities = amenities;
+    if (propertyAge !== undefined) property.propertyAge = propertyAge;
     if (images !== undefined) property.images = images;
 
     await property.save();

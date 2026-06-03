@@ -6,15 +6,38 @@ import { map } from 'rxjs/operators';
 export interface Property {
   _id: string;
   title: string;
+  description: string;
   city: string;
+  areaName?: string;
+  address?: string;
   country: string;
   type: string;
+  propertyType?: string;
+  purpose?: 'Sale' | 'Rent' | string;
   price: number;
   bedrooms: number;
   bathrooms: number;
   area: number;
+  areaSqFt?: number;
+  areaMarla?: number;
+  features?: string[];
   amenities?: string[];
   age?: number;
+  propertyAge?: number;
+  images?: string[];
+  createdBy?: Agent | string;
+  agent?: Agent;
+  createdAt?: string;
+}
+
+export interface Agent {
+  _id?: string;
+  id?: string;
+  fullName?: string;
+  name?: string;
+  email?: string;
+  phone?: string;
+  role?: string;
 }
 
 interface ApiResponse<T> {
