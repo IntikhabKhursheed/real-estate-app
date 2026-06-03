@@ -1,0 +1,13 @@
+-D
+node_modules/
+dist/
+out-tsc/
+.angular/
+*.log
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+.env
+.env.local
+.DS_Store
+Thumbs.db

@@ -1,0 +1,104 @@
+<div class="min-h-screen bg-gradient-to-br from-blue-50 to-indigo-100 dark:from-gray-900 dark:to-gray-800 transition-colors duration-300">
+  <!-- Hero Section -->
+  <div class="max-w-7xl mx-auto px-4 py-16 sm:py-24">
+    <div class="text-center mb-12">
+      <h1 class="text-4xl sm:text-5xl md:text-6xl font-bold text-gray-900 dark:text-white mb-6">
+        Welcome to <span class="text-blue-600 dark:text-blue-400">EstateIQ</span>
+      </h1>
+      <p class="text-xl text-gray-600 dark:text-gray-300 mb-8 max-w-2xl mx-auto">
+        AI-powered real estate analysis. Get accurate property valuations and investment insights in seconds.
+      </p>
+      <div class="flex flex-col sm:flex-row gap-4 justify-center">
+        <a routerLink="/properties" class="bg-blue-600 hover:bg-blue-700 dark:bg-blue-500 dark:hover:bg-blue-600 text-white px-8 py-3 rounded-lg font-semibold transition">
+          Explore Properties
+        </a>
+        <a routerLink="/valuation" class="bg-gray-200 dark:bg-gray-700 hover:bg-gray-300 dark:hover:bg-gray-600 text-gray-800 dark:text-white px-8 py-3 rounded-lg font-semibold transition">
+          Get Valuation
+        </a>
+      </div>
+    </div>
+
+    <!-- Features Section -->
+    <div class="grid grid-cols-1 md:grid-cols-3 gap-8 my-16">
+      <div class="bg-white dark:bg-gray-800 p-8 rounded-lg shadow-lg hover:shadow-xl transition">
+        <div class="text-3xl mb-4">🏠</div>
+        <h3 class="text-xl font-bold text-gray-900 dark:text-white mb-2">Property Search</h3>
+        <p class="text-gray-600 dark:text-gray-300">Search properties using natural language and AI-powered recommendations.</p>
+      </div>
+      <div class="bg-white dark:bg-gray-800 p-8 rounded-lg shadow-lg hover:shadow-xl transition">
+        <div class="text-3xl mb-4">💰</div>
+        <h3 class="text-xl font-bold text-gray-900 dark:text-white mb-2">Smart Valuation</h3>
+        <p class="text-gray-600 dark:text-gray-300">Get accurate property valuations powered by machine learning.</p>
+      </div>
+      <div class="bg-white dark:bg-gray-800 p-8 rounded-lg shadow-lg hover:shadow-xl transition">
+        <div class="text-3xl mb-4">📊</div>
+        <h3 class="text-xl font-bold text-gray-900 dark:text-white mb-2">Investment Score</h3>
+        <p class="text-gray-600 dark:text-gray-300">Calculate investment potential with confidence scores and detailed analysis.</p>
+      </div>
+    </div>
+
+    <!-- Featured Properties Section -->
+    <div class="my-16">
+      <h2 class="text-3xl md:text-4xl font-bold text-gray-900 dark:text-white mb-8 text-center">Featured Properties</h2>
+      
+      <!-- Loading State -->
+      <div *ngIf="isLoading" class="text-center py-12">
+        <div class="inline-block animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600"></div>
+        <p class="text-gray-600 dark:text-gray-300 mt-4">Loading featured properties...</p>
+      </div>
+
+      <!-- Error State -->
+      <div *ngIf="error && !isLoading" class="bg-red-100 dark:bg-red-900 border border-red-400 dark:border-red-700 text-red-700 dark:text-red-200 px-4 py-3 rounded mb-8">
+        {{ error }}
+      </div>
+
+      <!-- Properties Grid -->
+      <div *ngIf="!isLoading && featuredProperties.length > 0" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+        <div *ngFor="let property of featuredProperties" class="bg-white dark:bg-gray-800 rounded-lg overflow-hidden shadow-lg hover:shadow-xl transition cursor-pointer">
+          <div class="bg-gradient-to-r from-blue-400 to-indigo-600 h-40 flex items-center justify-center">
+            <span class="text-white text-4xl">🏡</span>
+          </div>
+          <div class="p-6">
+            <h3 class="text-xl font-bold text-gray-900 dark:text-white mb-2">{{ property.title }}</h3>
+            <p class="text-gray-600 dark:text-gray-300 mb-4">{{ property.city }}, {{ property.country }}</p>
+            
+            <div class="space-y-2 mb-4">
+              <div class="flex justify-between text-sm">
+                <span class="text-gray-600 dark:text-gray-400">Type:</span>
+                <span class="font-semibold text-gray-900 dark:text-white">{{ property.type }}</span>
+              </div>
+              <div class="flex justify-between text-sm">
+                <span class="text-gray-600 dark:text-gray-400">Price:</span>
+                <span class="font-semibold text-blue-600 dark:text-blue-400">${{ (property.price | number:'1.0-0') }}</span>
+              </div>
+              <div class="flex justify-between text-sm">
+                <span class="text-gray-600 dark:text-gray-400">Beds/Baths:</span>
+                <span class="font-semibold text-gray-900 dark:text-white">{{ property.bedrooms }}/{{ property.bathrooms }}</span>
+              </div>
+              <div class="flex justify-between text-sm">
+                <span class="text-gray-600 dark:text-gray-400">Area:</span>
+                <span class="font-semibold text-gray-900 dark:text-white">{{ property.area }} sq ft</span>
+              </div>
+            </div>
+
+            <a [routerLink]="['/investment', property._id]" class="block w-full bg-blue-600 hover:bg-blue-700 dark:bg-blue-500 dark:hover:bg-blue-600 text-white text-center py-2 rounded font-semibold transition">
+              View Investment Score
+            </a>
+          </div>
+        </div>
+      </div>
+
+      <!-- No Properties State -->
+      <div *ngIf="!isLoading && featuredProperties.length === 0" class="text-center py-12">
+        <p class="text-gray-600 dark:text-gray-300">No properties available at the moment.</p>
+      </div>
+
+      <!-- View All Button -->
+      <div class="text-center mt-12">
+        <a routerLink="/properties" class="inline-block bg-blue-600 hover:bg-blue-700 dark:bg-blue-500 dark:hover:bg-blue-600 text-white px-8 py-3 rounded-lg font-semibold transition">
+          View All Properties
+        </a>
+      </div>
+    </div>
+  </div>
+</div>

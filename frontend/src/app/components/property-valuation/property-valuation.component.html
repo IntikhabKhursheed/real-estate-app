@@ -1,0 +1,161 @@
+<div class="min-h-screen bg-gray-50 dark:bg-gray-900 py-8 transition-colors duration-300">
+  <div class="max-w-4xl mx-auto px-4">
+    <h1 class="text-4xl font-bold text-gray-900 dark:text-white mb-8">Property Valuation</h1>
+
+    <div class="grid grid-cols-1 lg:grid-cols-2 gap-8">
+      <!-- Form Section -->
+      <div class="bg-white dark:bg-gray-800 rounded-lg shadow-lg p-8">
+        <h2 class="text-2xl font-bold text-gray-900 dark:text-white mb-6">Enter Property Details</h2>
+
+        <form [formGroup]="form" (ngSubmit)="onSubmit()">
+          <!-- Location Fields -->
+          <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mb-6">
+            <div>
+              <label class="block text-gray-700 dark:text-gray-300 font-semibold mb-2">City</label>
+              <input type="text" formControlName="city" placeholder="e.g., New York"
+                     class="w-full px-4 py-2 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-700 text-gray-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-blue-600">
+              <span *ngIf="form.get('city')?.invalid && form.get('city')?.touched" class="text-red-600 dark:text-red-400 text-sm">
+                City is required
+              </span>
+            </div>
+            <div>
+              <label class="block text-gray-700 dark:text-gray-300 font-semibold mb-2">Country</label>
+              <input type="text" formControlName="country" placeholder="e.g., USA"
+                     class="w-full px-4 py-2 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-700 text-gray-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-blue-600">
+              <span *ngIf="form.get('country')?.invalid && form.get('country')?.touched" class="text-red-600 dark:text-red-400 text-sm">
+                Country is required
+              </span>
+            </div>
+          </div>
+
+          <!-- Property Type -->
+          <div class="mb-6">
+            <label class="block text-gray-700 dark:text-gray-300 font-semibold mb-2">Property Type</label>
+            <select formControlName="type"
+                    class="w-full px-4 py-2 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-700 text-gray-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-blue-600">
+              <option value="">Select a type</option>
+              <option value="House">House</option>
+              <option value="Apartment">Apartment</option>
+              <option value="Condo">Condo</option>
+              <option value="Townhouse">Townhouse</option>
+              <option value="Commercial">Commercial</option>
+            </select>
+            <span *ngIf="form.get('type')?.invalid && form.get('type')?.touched" class="text-red-600 dark:text-red-400 text-sm">
+              Property type is required
+            </span>
+          </div>
+
+          <!-- Bedrooms & Bathrooms -->
+          <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mb-6">
+            <div>
+              <label class="block text-gray-700 dark:text-gray-300 font-semibold mb-2">Bedrooms</label>
+              <input type="number" formControlName="bedrooms" placeholder="0"
+                     class="w-full px-4 py-2 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-700 text-gray-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-blue-600">
+            </div>
+            <div>
+              <label class="block text-gray-700 dark:text-gray-300 font-semibold mb-2">Bathrooms</label>
+              <input type="number" formControlName="bathrooms" placeholder="0"
+                     class="w-full px-4 py-2 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-700 text-gray-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-blue-600">
+            </div>
+          </div>
+
+          <!-- Area & Age -->
+          <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mb-6">
+            <div>
+              <label class="block text-gray-700 dark:text-gray-300 font-semibold mb-2">Area (sq ft)</label>
+              <input type="number" formControlName="area" placeholder="1000"
+                     class="w-full px-4 py-2 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-700 text-gray-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-blue-600">
+            </div>
+            <div>
+              <label class="block text-gray-700 dark:text-gray-300 font-semibold mb-2">Age (years)</label>
+              <input type="number" formControlName="age" placeholder="10"
+                     class="w-full px-4 py-2 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-700 text-gray-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-blue-600">
+            </div>
+          </div>
+
+          <!-- Amenities -->
+          <div class="mb-6">
+            <label class="block text-gray-700 dark:text-gray-300 font-semibold mb-3">Amenities</label>
+            <div class="grid grid-cols-2 md:grid-cols-3 gap-3">
+              <label *ngFor="let amenity of amenitiesList" class="flex items-center">
+                <input type="checkbox" (change)="toggleAmenity(amenity)" 
+                       [checked]="selectedAmenities.includes(amenity)"
+                       class="w-4 h-4 rounded border-gray-300 text-blue-600 focus:ring-2 focus:ring-blue-600">
+                <span class="ml-2 text-gray-700 dark:text-gray-300">{{ amenity }}</span>
+              </label>
+            </div>
+          </div>
+
+          <!-- Error Message -->
+          <div *ngIf="error" class="bg-red-100 dark:bg-red-900 border border-red-400 dark:border-red-700 text-red-700 dark:text-red-200 px-4 py-3 rounded mb-6">
+            {{ error }}
+          </div>
+
+          <!-- Buttons -->
+          <div class="flex gap-4">
+            <button type="submit" [disabled]="isLoading"
+                    class="flex-1 bg-blue-600 hover:bg-blue-700 dark:bg-blue-500 dark:hover:bg-blue-600 disabled:opacity-50 disabled:cursor-not-allowed text-white py-3 rounded-lg font-semibold transition">
+              <span *ngIf="!isLoading">Get Valuation</span>
+              <span *ngIf="isLoading">Loading...</span>
+            </button>
+            <button type="button" (click)="resetForm()"
+                    class="flex-1 bg-gray-300 dark:bg-gray-600 hover:bg-gray-400 dark:hover:bg-gray-700 text-gray-900 dark:text-white py-3 rounded-lg font-semibold transition">
+              Reset
+            </button>
+          </div>
+        </form>
+      </div>
+
+      <!-- Results Section -->
+      <div class="bg-white dark:bg-gray-800 rounded-lg shadow-lg p-8" *ngIf="result || isLoading">
+        <h2 class="text-2xl font-bold text-gray-900 dark:text-white mb-6">Valuation Results</h2>
+
+        <!-- Loading State -->
+        <div *ngIf="isLoading" class="flex justify-center items-center h-96">
+          <div class="text-center">
+            <div class="animate-spin rounded-full h-16 w-16 border-b-4 border-blue-600 mx-auto mb-4"></div>
+            <p class="text-gray-600 dark:text-gray-300">Calculating valuation...</p>
+          </div>
+        </div>
+
+        <!-- Results Display -->
+        <div *ngIf="result && !isLoading" class="space-y-6">
+          <!-- Estimated Price -->
+          <div class="bg-gradient-to-r from-blue-50 to-indigo-50 dark:from-blue-900 dark:to-indigo-900 p-6 rounded-lg">
+            <p class="text-gray-600 dark:text-gray-400 mb-2">Estimated Price</p>
+            <p class="text-4xl font-bold text-blue-600 dark:text-blue-400">
+              ${{ (result.estimatedPrice | number:'1.0-0') }}
+            </p>
+          </div>
+
+          <!-- Confidence Score -->
+          <div class="bg-gradient-to-r from-purple-50 to-pink-50 dark:from-purple-900 dark:to-pink-900 p-6 rounded-lg">
+            <p class="text-gray-600 dark:text-gray-400 mb-2">Confidence Score</p>
+            <div class="flex items-center gap-4">
+              <p class="text-3xl font-bold text-purple-600 dark:text-purple-400">{{ (result.confidence * 100).toFixed(0) }}%</p>
+              <div class="flex-1 bg-gray-300 dark:bg-gray-600 rounded-full h-2">
+                <div class="bg-purple-600 dark:bg-purple-400 h-2 rounded-full" [style.width.%]="result.confidence * 100"></div>
+              </div>
+            </div>
+          </div>
+
+          <!-- Investment Rating -->
+          <div [ngClass]="'bg-gradient-to-r ' + getRatingBgColor(result.investmentRating) + ' p-6 rounded-lg'">
+            <p class="text-gray-600 dark:text-gray-400 mb-2">Investment Rating</p>
+            <p [ngClass]="'text-2xl font-bold ' + getRatingColor(result.investmentRating)">
+              {{ result.investmentRating }}
+            </p>
+          </div>
+
+          <!-- AI Reasoning -->
+          <div class="border border-gray-200 dark:border-gray-700 p-6 rounded-lg">
+            <h3 class="text-lg font-bold text-gray-900 dark:text-white mb-3">AI Analysis</h3>
+            <p class="text-gray-700 dark:text-gray-300 leading-relaxed">
+              {{ result.reasoning }}
+            </p>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
