@@ -11,6 +11,7 @@ import { AuthComponent } from './components/auth/auth.component';
 import { DashboardComponent } from './pages/dashboard/dashboard.component';
 import { PropertyCreateComponent } from './pages/property-create/property-create.component';
 import { PropertyDetailComponent } from './pages/property-detail/property-detail.component';
+import { MarketIntelligenceComponent } from './pages/market-intelligence/market-intelligence.component';
 import { AuthGuard } from './guards/auth.guard';
 
 export const routes: Routes = [
@@ -22,6 +23,7 @@ export const routes: Routes = [
   { path: 'properties/new', component: PropertyCreateComponent, canActivate: [AuthGuard] },
   { path: 'properties/:id', component: PropertyDetailComponent, canActivate: [AuthGuard] },
   { path: 'dashboard', component: DashboardComponent, canActivate: [AuthGuard] },
+  { path: 'market-intelligence', component: MarketIntelligenceComponent, canActivate: [AuthGuard] },
   { path: 'valuation', component: PropertyValuationComponent, canActivate: [AuthGuard] },
   { path: 'search', component: PropertySearchComponent, canActivate: [AuthGuard] },
   { path: 'investment/:id', component: InvestmentScoreComponent, canActivate: [AuthGuard] },

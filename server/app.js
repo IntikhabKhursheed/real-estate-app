@@ -39,6 +39,7 @@ const valuationRoutes = require('./routes/valuationRoutes');
 const searchRoutes = require('./routes/searchRoutes');
 const investmentRoutes = require('./routes/investmentRoutes');
 const dashboardRoutes = require('./routes/dashboardRoutes');
+const marketRoutes = require('./routes/marketRoutes');
 
 // Mount routes
 app.use('/api/auth', authRoutes);
@@ -47,6 +48,7 @@ app.use('/api/properties', searchRoutes);
 app.use('/api/properties', investmentRoutes);
 app.use('/api/valuation', valuationRoutes);
 app.use('/api/dashboard', dashboardRoutes);
+app.use('/api/market', marketRoutes);
 
 // Error handler - MUST be last
 app.use((err, req, res, next) => {

@@ -29,6 +29,10 @@
            class="text-gray-700 dark:text-gray-300 hover:text-blue-600 dark:hover:text-blue-400 transition">
           Search
         </a>
+        <a routerLink="/market-intelligence" routerLinkActive="text-blue-600 dark:text-blue-400" 
+           class="text-gray-700 dark:text-gray-300 hover:text-blue-600 dark:hover:text-blue-400 transition">
+          Market Intelligence
+        </a>
       </div>
 
       <!-- Auth & Theme Controls -->
@@ -111,6 +115,10 @@
       <a routerLink="/search" (click)="closeMenu()" routerLinkActive="text-blue-600 dark:text-blue-400" 
          class="block px-4 py-2 text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-800 rounded transition">
         Search
+      </a>
+      <a routerLink="/market-intelligence" (click)="closeMenu()" routerLinkActive="text-blue-600 dark:text-blue-400" 
+         class="block px-4 py-2 text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-800 rounded transition">
+        Market Intelligence
       </a>
 
       <!-- Mobile Auth -->
