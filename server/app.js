@@ -38,6 +38,7 @@ const propertyRoutes = require('./routes/propertyRoutes');
 const valuationRoutes = require('./routes/valuationRoutes');
 const searchRoutes = require('./routes/searchRoutes');
 const investmentRoutes = require('./routes/investmentRoutes');
+const dashboardRoutes = require('./routes/dashboardRoutes');
 
 // Mount routes
 app.use('/api/auth', authRoutes);
@@ -45,6 +46,7 @@ app.use('/api/properties', propertyRoutes);
 app.use('/api/properties', searchRoutes);
 app.use('/api/properties', investmentRoutes);
 app.use('/api/valuation', valuationRoutes);
+app.use('/api/dashboard', dashboardRoutes);
 
 // Error handler - MUST be last
 app.use((err, req, res, next) => {

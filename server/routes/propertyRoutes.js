@@ -51,6 +51,9 @@ router.post('/', authenticateJWT, propertyController.createProperty);
 // POST /api/properties/:id/images (Protected)
 router.post('/:id/images', authenticateJWT, uploadPropertyImages, propertyController.uploadPropertyImages);
 
+// PATCH /api/properties/:id/status (Protected)
+router.patch('/:id/status', authenticateJWT, propertyController.updatePropertyStatus);
+
 // PUT /api/properties/:id (Protected)
 router.put('/:id', authenticateJWT, propertyController.updateProperty);
 

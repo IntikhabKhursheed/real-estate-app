@@ -64,6 +64,10 @@ exports.getPropertyById = async (req, res) => {
         data: null
       });
     }
+
+    property.views = Number(property.views || 0) + 1;
+    await property.save();
+
     return res.status(200).json({
       success: true,
       message: 'Property retrieved successfully',
@@ -283,6 +287,54 @@ exports.uploadPropertyImages = async (req, res) => {
     return res.status(500).json({
       success: false,
       message: error.message || 'Error uploading property images',
+      data: null
+    });
+  }
+};
+
+// PATCH /api/properties/:id/status
+exports.updatePropertyStatus = async (req, res) => {
+  try {
+    const { status } = req.body;
+    if (!['Active', 'Inactive'].includes(status)) {
+      return res.status(400).json({
+        success: false,
+        message: 'Status must be Active or Inactive',
+        data: null
+      });
+    }
+
+    const property = await Property.findById(req.params.id);
+    if (!property) {
+      return res.status(404).json({
+        success: false,
+        message: 'Property not found',
+        data: null
+      });
+    }
+
+    if (property.createdBy.toString() !== req.user.id && req.user.role !== 'admin') {
+      return res.status(403).json({
+        success: false,
+        message: 'Forbidden: You do not have permission to update this property',
+        data: null
+      });
+    }
+
+    property.status = status;
+    await property.save();
+
+    const populatedProperty = await Property.findById(property._id).populate('createdBy', 'fullName email phone role');
+
+    return res.status(200).json({
+      success: true,
+      message: 'Property status updated successfully',
+      data: populatedProperty
+    });
+  } catch (error) {
+    return res.status(500).json({
+      success: false,
+      message: error.message || 'Error updating property status',
       data: null
     });
   }

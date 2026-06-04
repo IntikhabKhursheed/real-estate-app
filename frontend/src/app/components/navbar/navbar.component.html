@@ -16,6 +16,11 @@
            class="text-gray-700 dark:text-gray-300 hover:text-blue-600 dark:hover:text-blue-400 transition">
           Properties
         </a>
+        <a *ngIf="isAuthenticated && (currentUser?.role === 'agent' || currentUser?.role === 'admin')"
+           routerLink="/dashboard" routerLinkActive="text-blue-600 dark:text-blue-400" 
+           class="text-gray-700 dark:text-gray-300 hover:text-blue-600 dark:hover:text-blue-400 transition">
+          Dashboard
+        </a>
         <a routerLink="/valuation" routerLinkActive="text-blue-600 dark:text-blue-400" 
            class="text-gray-700 dark:text-gray-300 hover:text-blue-600 dark:hover:text-blue-400 transition">
           Valuation
@@ -93,6 +98,11 @@
       <a routerLink="/properties" (click)="closeMenu()" routerLinkActive="text-blue-600 dark:text-blue-400" 
          class="block px-4 py-2 text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-800 rounded transition">
         Properties
+      </a>
+      <a *ngIf="isAuthenticated && (currentUser?.role === 'agent' || currentUser?.role === 'admin')"
+         routerLink="/dashboard" (click)="closeMenu()" routerLinkActive="text-blue-600 dark:text-blue-400" 
+         class="block px-4 py-2 text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-800 rounded transition">
+        Dashboard
       </a>
       <a routerLink="/valuation" (click)="closeMenu()" routerLinkActive="text-blue-600 dark:text-blue-400" 
          class="block px-4 py-2 text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-800 rounded transition">

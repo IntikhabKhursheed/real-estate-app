@@ -1,14 +1,15 @@
 import { CommonModule } from '@angular/common';
-import { Component, OnDestroy } from '@angular/core';
+import { Component, OnDestroy, OnInit } from '@angular/core';
 import { FormBuilder, ReactiveFormsModule, Validators } from '@angular/forms';
-import { Router, RouterModule } from '@angular/router';
-import { of, switchMap } from 'rxjs';
-import { PropertyService } from '../../services/property.service';
+import { ActivatedRoute, Router, RouterModule } from '@angular/router';
+import { Subscription, of, switchMap } from 'rxjs';
+import { Property, PropertyService } from '../../services/property.service';
 
 interface ImagePreview {
   name: string;
   size: number;
   url: string;
+  isRemote?: boolean;
 }
 
 @Component({
@@ -18,13 +19,17 @@ interface ImagePreview {
   templateUrl: './property-create.component.html',
   styleUrls: ['./property-create.component.scss']
 })
-export class PropertyCreateComponent implements OnDestroy {
+export class PropertyCreateComponent implements OnInit, OnDestroy {
   propertyTypes = ['Apartment', 'House', 'Plot', 'Commercial'];
   purposes = ['Sale', 'Rent'];
   selectedFiles: File[] = [];
   imagePreviews: ImagePreview[] = [];
+  existingImages: string[] = [];
   isSubmitting = false;
+  isLoadingProperty = false;
   error: string | null = null;
+  isEditMode = false;
+  editingPropertyId: string | null = null;
 
   form = this.fb.group({
     title: ['', [Validators.required, Validators.minLength(3)]],
@@ -44,14 +49,45 @@ export class PropertyCreateComponent implements OnDestroy {
     features: ['']
   });
 
+  private readonly subscriptions = new Subscription();
+
   constructor(
     private fb: FormBuilder,
     private propertyService: PropertyService,
+    private route: ActivatedRoute,
     private router: Router
   ) { }
 
+  ngOnInit(): void {
+    this.subscriptions.add(
+      this.route.queryParamMap.subscribe(params => {
+        this.editingPropertyId = params.get('edit');
+        this.isEditMode = Boolean(this.editingPropertyId);
+
+        if (this.isEditMode && this.editingPropertyId) {
+          this.loadPropertyForEdit(this.editingPropertyId);
+        }
+      })
+    );
+  }
+
   ngOnDestroy(): void {
+    this.subscriptions.unsubscribe();
     this.revokePreviewUrls();
+  }
+
+  get pageTitle(): string {
+    return this.isEditMode ? 'Edit Property' : 'Add New Property';
+  }
+
+  get pageDescription(): string {
+    return this.isEditMode
+      ? 'Update the listing details and upload any new images you want to append.'
+      : 'Create the listing first, then EstateIQ uploads the selected images to Cloudinary.';
+  }
+
+  get submitLabel(): string {
+    return this.isEditMode ? 'Save Changes' : 'Publish Property';
   }
 
   onFilesSelected(event: Event): void {
@@ -68,7 +104,7 @@ export class PropertyCreateComponent implements OnDestroy {
       this.error = 'Only image files can be uploaded.';
     }
 
-    const remainingSlots = Math.max(0, 8 - this.selectedFiles.length);
+    const remainingSlots = Math.max(0, 8 - this.selectedFiles.length - this.existingImages.length);
     const filesToAdd = validFiles.slice(0, remainingSlots);
 
     if (validFiles.length > remainingSlots) {
@@ -97,6 +133,10 @@ export class PropertyCreateComponent implements OnDestroy {
     this.selectedFiles.splice(index, 1);
   }
 
+  removeExistingImage(index: number): void {
+    this.existingImages.splice(index, 1);
+  }
+
   onSubmit(): void {
     if (this.form.invalid) {
       this.form.markAllAsTouched();
@@ -108,8 +148,11 @@ export class PropertyCreateComponent implements OnDestroy {
     this.error = null;
 
     const payload = this.buildPropertyPayload();
+    const save$ = this.isEditMode && this.editingPropertyId
+      ? this.propertyService.updateProperty(this.editingPropertyId, payload)
+      : this.propertyService.createProperty(payload);
 
-    this.propertyService.createProperty(payload).pipe(
+    save$.pipe(
       switchMap(property => {
         if (this.selectedFiles.length === 0) {
           return of(property);
@@ -123,9 +166,9 @@ export class PropertyCreateComponent implements OnDestroy {
         this.router.navigate(['/properties', property._id]);
       },
       error: error => {
-        console.error('Property creation error:', error);
+        console.error('Property save error:', error);
         this.isSubmitting = false;
-        this.error = error.error?.message || 'Property could not be published right now. Please try again.';
+        this.error = error.error?.message || 'Property could not be saved right now. Please try again.';
       }
     });
   }
@@ -145,6 +188,49 @@ export class PropertyCreateComponent implements OnDestroy {
 
   trackByPreview(index: number, preview: ImagePreview): string {
     return `${index}-${preview.name}-${preview.size}`;
+  }
+
+  trackByRemoteImage(index: number, image: string): string {
+    return `${index}-${image}`;
+  }
+
+  private loadPropertyForEdit(propertyId: string): void {
+    this.isLoadingProperty = true;
+
+    this.subscriptions.add(
+      this.propertyService.getPropertyById(propertyId).subscribe({
+        next: property => {
+          this.patchForm(property);
+          this.existingImages = property.images || [];
+          this.isLoadingProperty = false;
+        },
+        error: error => {
+          console.error('Failed to load property for editing:', error);
+          this.error = error.error?.message || 'Unable to load property details for editing.';
+          this.isLoadingProperty = false;
+        }
+      })
+    );
+  }
+
+  private patchForm(property: Property): void {
+    this.form.patchValue({
+      title: property.title || '',
+      description: property.description || '',
+      price: property.price ?? null,
+      city: property.city || '',
+      areaName: property.areaName || '',
+      address: property.address || '',
+      country: property.country || 'Pakistan',
+      bedrooms: property.bedrooms ?? 0,
+      bathrooms: property.bathrooms ?? 0,
+      areaSqFt: property.areaSqFt ?? property.area ?? null,
+      areaMarla: property.areaMarla ?? null,
+      propertyType: property.propertyType || property.type || '',
+      purpose: property.purpose || 'Sale',
+      propertyAge: property.propertyAge ?? property.age ?? 0,
+      features: (property.features || property.amenities || []).join(', ')
+    });
   }
 
   private buildPropertyPayload(): Record<string, unknown> {
@@ -167,7 +253,8 @@ export class PropertyCreateComponent implements OnDestroy {
       purpose: value.purpose,
       propertyAge: Number(value.propertyAge || 0),
       features,
-      amenities: features
+      amenities: features,
+      images: this.existingImages
     };
   }
 

@@ -8,6 +8,7 @@ import { InvestmentScoreComponent } from './components/investment-score/investme
 import { LoginComponent } from './components/login/login.component';
 import { RegisterComponent } from './components/register/register.component';
 import { AuthComponent } from './components/auth/auth.component';
+import { DashboardComponent } from './pages/dashboard/dashboard.component';
 import { PropertyCreateComponent } from './pages/property-create/property-create.component';
 import { PropertyDetailComponent } from './pages/property-detail/property-detail.component';
 import { AuthGuard } from './guards/auth.guard';
@@ -20,6 +21,7 @@ export const routes: Routes = [
   { path: 'properties', component: PropertyListComponent, canActivate: [AuthGuard] },
   { path: 'properties/new', component: PropertyCreateComponent, canActivate: [AuthGuard] },
   { path: 'properties/:id', component: PropertyDetailComponent, canActivate: [AuthGuard] },
+  { path: 'dashboard', component: DashboardComponent, canActivate: [AuthGuard] },
   { path: 'valuation', component: PropertyValuationComponent, canActivate: [AuthGuard] },
   { path: 'search', component: PropertySearchComponent, canActivate: [AuthGuard] },
   { path: 'investment/:id', component: InvestmentScoreComponent, canActivate: [AuthGuard] },

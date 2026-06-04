@@ -26,6 +26,8 @@ export interface Property {
   age?: number;
   propertyAge?: number;
   images?: string[];
+  status?: 'Active' | 'Inactive';
+  views?: number;
   createdBy?: Agent | string;
   agent?: Agent;
   createdAt?: string;
@@ -41,6 +43,39 @@ export interface Agent {
   role?: string;
 }
 
+export interface DashboardInquiry {
+  _id: string;
+  name: string;
+  email: string;
+  phone?: string;
+  message: string;
+  createdAt: string;
+  property: {
+    _id: string;
+    title: string;
+    city: string;
+    price: number;
+    propertyType: string;
+    status: string;
+  };
+  agent: Agent;
+}
+
+export interface DashboardPropertySummary extends Property {
+  status?: 'Active' | 'Inactive';
+  views?: number;
+}
+
+export interface AgentDashboardResponse {
+  summary: {
+    totalListings: number;
+    activeListings: number;
+    totalViews: number;
+  };
+  properties: DashboardPropertySummary[];
+  recentInquiries: DashboardInquiry[];
+}
+
 interface ApiResponse<T> {
   success: boolean;
   message: string;
@@ -52,6 +87,7 @@ interface ApiResponse<T> {
 })
 export class PropertyService {
   private apiUrl = 'http://localhost:5000/api/properties';
+  private dashboardApiUrl = 'http://localhost:5000/api/dashboard';
 
   constructor(private http: HttpClient) { }
 
@@ -84,11 +120,35 @@ export class PropertyService {
     );
   }
 
+  updateProperty(id: string, data: any): Observable<Property> {
+    return this.http.put<ApiResponse<Property>>(`${this.apiUrl}/${id}`, data).pipe(
+      map(response => response.data)
+    );
+  }
+
+  updatePropertyStatus(id: string, status: 'Active' | 'Inactive'): Observable<Property> {
+    return this.http.patch<ApiResponse<Property>>(`${this.apiUrl}/${id}/status`, { status }).pipe(
+      map(response => response.data)
+    );
+  }
+
+  deleteProperty(id: string): Observable<void> {
+    return this.http.delete<ApiResponse<void>>(`${this.apiUrl}/${id}`).pipe(
+      map(() => void 0)
+    );
+  }
+
   uploadPropertyImages(propertyId: string, files: File[]): Observable<Property> {
     const formData = new FormData();
     files.forEach(file => formData.append('images', file));
 
     return this.http.post<ApiResponse<Property>>(`${this.apiUrl}/${propertyId}/images`, formData).pipe(
+      map(response => response.data)
+    );
+  }
+
+  getAgentDashboard(): Observable<AgentDashboardResponse> {
+    return this.http.get<ApiResponse<AgentDashboardResponse>>(`${this.dashboardApiUrl}/agent`).pipe(
       map(response => response.data)
     );
   }
