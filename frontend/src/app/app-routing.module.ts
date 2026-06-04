@@ -22,6 +22,7 @@ export const routes: Routes = [
   { path: 'register', component: RegisterComponent },
   { path: 'properties', component: PropertyListComponent, canActivate: [AuthGuard] },
   { path: 'properties/new', component: PropertyCreateComponent, canActivate: [AuthGuard] },
+  { path: 'properties/:id/edit', component: PropertyCreateComponent, canActivate: [AuthGuard] },
   { path: 'properties/:id', component: PropertyDetailComponent, canActivate: [AuthGuard] },
   { path: 'profile', component: ProfileComponent, canActivate: [AuthGuard] },
   { path: 'dashboard', component: DashboardComponent, canActivate: [AuthGuard] },

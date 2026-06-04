@@ -4,6 +4,7 @@ import { FormBuilder, ReactiveFormsModule, Validators } from '@angular/forms';
 import { ActivatedRoute, Router, RouterModule } from '@angular/router';
 import { Subscription, of, switchMap } from 'rxjs';
 import { Property, PropertyService } from '../../services/property.service';
+import { ToastService } from '../../services/toast.service';
 
 interface ImagePreview {
   name: string;
@@ -54,18 +55,22 @@ export class PropertyCreateComponent implements OnInit, OnDestroy {
   constructor(
     private fb: FormBuilder,
     private propertyService: PropertyService,
+    private toastService: ToastService,
     private route: ActivatedRoute,
     private router: Router
   ) { }
 
   ngOnInit(): void {
     this.subscriptions.add(
-      this.route.queryParamMap.subscribe(params => {
-        this.editingPropertyId = params.get('edit');
-        this.isEditMode = Boolean(this.editingPropertyId);
+      this.route.paramMap.subscribe(params => {
+        const editId = params.get('id');
+        this.editingPropertyId = editId;
+        this.isEditMode = Boolean(editId);
 
         if (this.isEditMode && this.editingPropertyId) {
           this.loadPropertyForEdit(this.editingPropertyId);
+        } else {
+          this.resetForCreateMode();
         }
       })
     );
@@ -104,11 +109,11 @@ export class PropertyCreateComponent implements OnInit, OnDestroy {
       this.error = 'Only image files can be uploaded.';
     }
 
-    const remainingSlots = Math.max(0, 8 - this.selectedFiles.length - this.existingImages.length);
+    const remainingSlots = Math.max(0, 5 - this.selectedFiles.length - this.existingImages.length);
     const filesToAdd = validFiles.slice(0, remainingSlots);
 
     if (validFiles.length > remainingSlots) {
-      this.error = 'You can upload up to 8 images per property.';
+      this.error = 'You can upload up to 5 images per property.';
     }
 
     filesToAdd.forEach(file => {
@@ -163,6 +168,7 @@ export class PropertyCreateComponent implements OnInit, OnDestroy {
     ).subscribe({
       next: property => {
         this.isSubmitting = false;
+        this.toastService.show(this.isEditMode ? 'Property updated.' : 'Property created.', 'success');
         this.router.navigate(['/properties', property._id]);
       },
       error: error => {
@@ -196,6 +202,11 @@ export class PropertyCreateComponent implements OnInit, OnDestroy {
 
   private loadPropertyForEdit(propertyId: string): void {
     this.isLoadingProperty = true;
+    this.error = null;
+    this.selectedFiles = [];
+    this.revokePreviewUrls();
+    this.imagePreviews = [];
+    this.existingImages = [];
 
     this.subscriptions.add(
       this.propertyService.getPropertyById(propertyId).subscribe({
@@ -211,6 +222,31 @@ export class PropertyCreateComponent implements OnInit, OnDestroy {
         }
       })
     );
+  }
+
+  private resetForCreateMode(): void {
+    this.existingImages = [];
+    this.selectedFiles = [];
+    this.error = null;
+    this.revokePreviewUrls();
+    this.imagePreviews = [];
+    this.form.reset({
+      title: '',
+      description: '',
+      price: null,
+      city: '',
+      areaName: '',
+      address: '',
+      country: 'Pakistan',
+      bedrooms: 0,
+      bathrooms: 0,
+      areaSqFt: null,
+      areaMarla: null,
+      propertyType: '',
+      purpose: 'Sale',
+      propertyAge: 0,
+      features: ''
+    });
   }
 
   private patchForm(property: Property): void {

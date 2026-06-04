@@ -6,6 +6,9 @@ import { InvestmentResponse, InvestmentService } from '../../services/investment
 import { MortgageCalculatorComponent } from '../../components/mortgage-calculator/mortgage-calculator.component';
 import { Agent, Property, PropertyService } from '../../services/property.service';
 import { ValuationRequest, ValuationResponse, ValuationService } from '../../services/valuation.service';
+import { AuthService } from '../../services/auth.service';
+import { Router } from '@angular/router';
+import { ToastService } from '../../services/toast.service';
 
 @Component({
   selector: 'app-property-detail',
@@ -19,6 +22,9 @@ export class PropertyDetailComponent implements OnInit, OnDestroy {
   property: Property | null = null;
   investment: InvestmentResponse | null = null;
   valuation: ValuationResponse | null = null;
+  currentUser: any = null;
+  deleteConfirmOpen = false;
+  isDeleting = false;
 
   isPropertyLoading = true;
   isInvestmentLoading = false;
@@ -35,10 +41,18 @@ export class PropertyDetailComponent implements OnInit, OnDestroy {
     private route: ActivatedRoute,
     private propertyService: PropertyService,
     private investmentService: InvestmentService,
-    private valuationService: ValuationService
+    private valuationService: ValuationService,
+    private authService: AuthService,
+    private toastService: ToastService,
+    private router: Router
   ) { }
 
   ngOnInit(): void {
+    this.currentUser = this.authService.getCurrentUser();
+    this.subscriptions.add(
+      this.authService.currentUser$.subscribe(user => this.currentUser = user)
+    );
+
     this.subscriptions.add(
       this.route.paramMap.subscribe(params => {
         this.propertyId = params.get('id');
@@ -52,6 +66,56 @@ export class PropertyDetailComponent implements OnInit, OnDestroy {
         this.loadProperty();
       })
     );
+  }
+
+  canManageProperty(): boolean {
+    if (!this.property || !this.currentUser) {
+      return false;
+    }
+
+    if (this.currentUser.role === 'admin') {
+      return true;
+    }
+
+    const ownerId = this.getPropertyOwnerId();
+    const currentUserId = this.currentUser._id || this.currentUser.id;
+    return Boolean(ownerId && currentUserId && ownerId === currentUserId);
+  }
+
+  openDeleteConfirm(): void {
+    this.deleteConfirmOpen = true;
+  }
+
+  closeDeleteConfirm(): void {
+    this.deleteConfirmOpen = false;
+  }
+
+  editProperty(): void {
+    if (!this.propertyId) {
+      return;
+    }
+
+    this.router.navigate(['/properties', this.propertyId, 'edit']);
+  }
+
+  confirmDelete(): void {
+    if (!this.propertyId) {
+      return;
+    }
+
+    this.isDeleting = true;
+    this.propertyService.deleteProperty(this.propertyId).subscribe({
+      next: () => {
+        this.toastService.show('Property deleted.', 'error');
+        this.isDeleting = false;
+        this.deleteConfirmOpen = false;
+        this.router.navigate(['/properties']);
+      },
+      error: error => {
+        this.isDeleting = false;
+        this.toastService.show(error.error?.message || 'Unable to delete the property.', 'error');
+      }
+    });
   }
 
   ngOnDestroy(): void {
@@ -229,6 +293,15 @@ export class PropertyDetailComponent implements OnInit, OnDestroy {
 
   get agentPhone(): string {
     return this.agentDetails?.phone || '';
+  }
+
+  private getPropertyOwnerId(): string {
+    const createdBy = this.property?.createdBy;
+    if (typeof createdBy === 'string') {
+      return createdBy;
+    }
+
+    return createdBy?._id || createdBy?.id || '';
   }
 
   get investmentScore(): number {

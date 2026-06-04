@@ -110,7 +110,18 @@ export class AuthService {
   }
 
   setUser(user: any): void {
-    localStorage.setItem(this.userKey, JSON.stringify(user));
+    if (!user) {
+      localStorage.removeItem(this.userKey);
+      return;
+    }
+
+    const normalizedUser = {
+      ...user,
+      id: user.id || user._id,
+      _id: user._id || user.id
+    };
+
+    localStorage.setItem(this.userKey, JSON.stringify(normalizedUser));
   }
 
   getCurrentUser(): any {

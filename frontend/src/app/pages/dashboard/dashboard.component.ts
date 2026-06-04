@@ -2,6 +2,7 @@ import { CommonModule } from '@angular/common';
 import { Component, OnInit } from '@angular/core';
 import { Router, RouterModule } from '@angular/router';
 import { Property, AgentDashboardResponse, PropertyService } from '../../services/property.service';
+import { ToastService } from '../../services/toast.service';
 
 @Component({
   selector: 'app-dashboard',
@@ -25,6 +26,7 @@ export class DashboardComponent implements OnInit {
 
   constructor(
     private propertyService: PropertyService,
+    private toastService: ToastService,
     private router: Router
   ) { }
 
@@ -64,17 +66,19 @@ export class DashboardComponent implements OnInit {
         } : item);
         this.summary.activeListings = this.properties.filter(item => item.status === 'Active').length;
         this.actionLoadingId = null;
+        this.toastService.show(`Property ${updated.status === 'Active' ? 'activated' : 'deactivated'}.`, 'success');
       },
       error: error => {
         console.error('Status update error:', error);
         this.error = error.error?.message || 'Unable to change the property status.';
         this.actionLoadingId = null;
+        this.toastService.show(this.error || 'Unable to change the property status.', 'error');
       }
     });
   }
 
   editProperty(property: Property): void {
-    this.router.navigate(['/properties/new'], { queryParams: { edit: property._id } });
+    this.router.navigate(['/properties', property._id, 'edit']);
   }
 
   deleteProperty(property: Property): void {
@@ -91,11 +95,13 @@ export class DashboardComponent implements OnInit {
         this.summary.activeListings = this.properties.filter(item => item.status === 'Active').length;
         this.summary.totalViews = this.properties.reduce((sum, item) => sum + Number(item.views || 0), 0);
         this.actionLoadingId = null;
+        this.toastService.show('Property deleted.', 'error');
       },
       error: error => {
         console.error('Delete error:', error);
         this.error = error.error?.message || 'Unable to delete the property.';
         this.actionLoadingId = null;
+        this.toastService.show(this.error || 'Unable to delete the property.', 'error');
       }
     });
   }

@@ -193,7 +193,7 @@ exports.updateProperty = async (req, res) => {
     }
 
     // Check ownership or admin role
-    if (property.createdBy.toString() !== req.user.id && req.user.role !== 'admin') {
+    if (!canUserManageProperty(property, req.user)) {
       return res.status(403).json({
         success: false,
         message: 'Forbidden: You do not have permission to update this property',
@@ -248,7 +248,7 @@ exports.uploadPropertyImages = async (req, res) => {
       });
     }
 
-    if (property.createdBy.toString() !== req.user.id && req.user.role !== 'admin') {
+    if (!canUserManageProperty(property, req.user)) {
       return res.status(403).json({
         success: false,
         message: 'Forbidden: You do not have permission to update this property',
@@ -313,7 +313,7 @@ exports.updatePropertyStatus = async (req, res) => {
       });
     }
 
-    if (property.createdBy.toString() !== req.user.id && req.user.role !== 'admin') {
+    if (!canUserManageProperty(property, req.user)) {
       return res.status(403).json({
         success: false,
         message: 'Forbidden: You do not have permission to update this property',
@@ -353,7 +353,7 @@ exports.deleteProperty = async (req, res) => {
     }
 
     // Check ownership or admin role
-    if (property.createdBy.toString() !== req.user.id && req.user.role !== 'admin') {
+    if (!canUserManageProperty(property, req.user)) {
       return res.status(403).json({
         success: false,
         message: 'Forbidden: You do not have permission to delete this property',
@@ -446,6 +446,24 @@ function calculateListingInvestmentScore(property) {
   if (String(property.purpose || '').toLowerCase() === 'rent') score += 5;
 
   return Math.max(0, Math.min(100, Math.round(score)));
+}
+
+function canUserManageProperty(property, user) {
+  if (!property || !user) {
+    return false;
+  }
+
+  if (user.role === 'admin') {
+    return true;
+  }
+
+  const userId = String(user._id || user.id || '');
+  const ownerValue = property.createdBy;
+  const ownerId = typeof ownerValue === 'object'
+    ? String(ownerValue._id || ownerValue.id || '')
+    : String(ownerValue || '');
+
+  return Boolean(userId && ownerId && userId === ownerId);
 }
 
 function escapeRegex(value) {

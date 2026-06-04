@@ -6,6 +6,21 @@
       Back to listings
     </a>
 
+    <div *ngIf="property && canManageProperty()" class="mb-6 flex flex-wrap gap-3">
+      <button type="button" (click)="editProperty()" class="inline-flex items-center gap-2 rounded-2xl bg-emerald-600 px-4 py-3 text-sm font-semibold text-white transition hover:bg-emerald-700">
+        <svg class="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5h2M5 11v2m14-2v2M11 19h2M7 7l2-2m8 8l2-2M7 17l2 2m8-8l2 2"></path>
+        </svg>
+        Edit property
+      </button>
+      <button type="button" (click)="openDeleteConfirm()" class="inline-flex items-center gap-2 rounded-2xl border border-red-200 bg-red-50 px-4 py-3 text-sm font-semibold text-red-700 transition hover:bg-red-100 dark:border-red-900/50 dark:bg-red-950/20 dark:text-red-300">
+        <svg class="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6M9 7V4h6v3m-8 0h10"></path>
+        </svg>
+        Delete property
+      </button>
+    </div>
+
     <div *ngIf="isPropertyLoading" class="space-y-6 animate-pulse">
       <div class="h-80 rounded-lg bg-gray-200 dark:bg-gray-800"></div>
       <div class="grid gap-6 lg:grid-cols-[minmax(0,1fr)_360px]">
@@ -221,5 +236,22 @@
         </aside>
       </div>
     </article>
+  </div>
+
+  <div *ngIf="deleteConfirmOpen" class="fixed inset-0 z-[70] flex items-center justify-center bg-black/50 px-4">
+    <div class="w-full max-w-md rounded-3xl bg-white p-6 shadow-2xl dark:bg-gray-900">
+      <p class="text-sm font-semibold uppercase tracking-[0.2em] text-red-600 dark:text-red-400">Confirm delete</p>
+      <h3 class="mt-3 text-2xl font-black text-gray-950 dark:text-white">Delete this property?</h3>
+      <p class="mt-3 text-sm leading-6 text-gray-600 dark:text-gray-400">This action cannot be undone. The listing will be removed from EstateIQ.</p>
+      <div class="mt-6 flex gap-3">
+        <button type="button" (click)="closeDeleteConfirm()" class="flex-1 rounded-2xl border border-gray-300 bg-white px-4 py-3 text-sm font-semibold text-gray-700 transition hover:border-emerald-300 hover:text-emerald-700 dark:border-gray-700 dark:bg-gray-950 dark:text-gray-300">
+          Cancel
+        </button>
+        <button type="button" (click)="confirmDelete()" [disabled]="isDeleting" class="flex-1 rounded-2xl bg-red-600 px-4 py-3 text-sm font-semibold text-white transition hover:bg-red-700 disabled:cursor-not-allowed disabled:opacity-60">
+          <span *ngIf="!isDeleting">Delete</span>
+          <span *ngIf="isDeleting">Deleting...</span>
+        </button>
+      </div>
+    </div>
   </div>
 </section>

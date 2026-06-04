@@ -4,6 +4,8 @@ import { ActivatedRoute, Router, RouterModule } from '@angular/router';
 import { Subscription } from 'rxjs';
 import { PropertyFilterSidebarComponent, PropertyListFilters } from '../property-filter-sidebar/property-filter-sidebar.component';
 import { PropertyService, Property } from '../../services/property.service';
+import { AuthService } from '../../services/auth.service';
+import { ToastService } from '../../services/toast.service';
 
 @Component({
   selector: 'app-property-list',
@@ -21,17 +23,29 @@ export class PropertyListComponent implements OnInit, OnDestroy {
   filters: PropertyListFilters = {
     sortBy: 'newest'
   };
+  currentUser: any = null;
+  deleteTarget: Property | null = null;
+  isDeleting = false;
 
   private readonly subscriptions = new Subscription();
 
   constructor(
     private propertyService: PropertyService,
+    private authService: AuthService,
+    private toastService: ToastService,
     private route: ActivatedRoute,
     private router: Router
   ) { }
 
   ngOnInit(): void {
     this.loadCityOptions();
+    this.currentUser = this.authService.getCurrentUser();
+
+    this.subscriptions.add(
+      this.authService.currentUser$.subscribe(user => {
+        this.currentUser = user;
+      })
+    );
 
     this.subscriptions.add(
       this.route.queryParamMap.subscribe(params => {
@@ -103,6 +117,54 @@ export class PropertyListComponent implements OnInit, OnDestroy {
     this.router.navigate(['/properties']);
   }
 
+  canManageProperty(property: Property): boolean {
+    if (!property || !this.currentUser) {
+      return false;
+    }
+
+    if (this.currentUser.role === 'admin') {
+      return true;
+    }
+
+    const ownerId = this.getPropertyOwnerId(property);
+    const currentUserId = this.currentUser._id || this.currentUser.id;
+    return Boolean(ownerId && currentUserId && ownerId === currentUserId);
+  }
+
+  startDelete(property: Property): void {
+    this.deleteTarget = property;
+  }
+
+  cancelDelete(): void {
+    this.deleteTarget = null;
+  }
+
+  confirmDelete(): void {
+    if (!this.deleteTarget) {
+      return;
+    }
+
+    const target = this.deleteTarget;
+    this.isDeleting = true;
+
+    this.propertyService.deleteProperty(target._id).subscribe({
+      next: () => {
+        this.properties = this.properties.filter(property => property._id !== target._id);
+        this.toastService.show('Property deleted.', 'error');
+        this.isDeleting = false;
+        this.deleteTarget = null;
+      },
+      error: error => {
+        this.toastService.show(error.error?.message || 'Unable to delete the property.', 'error');
+        this.isDeleting = false;
+      }
+    });
+  }
+
+  editProperty(property: Property): void {
+    this.router.navigate(['/properties', property._id, 'edit']);
+  }
+
   get activeSortLabel(): string {
     switch (this.filters.sortBy) {
       case 'price-low-high':
@@ -118,6 +180,15 @@ export class PropertyListComponent implements OnInit, OnDestroy {
 
   trackByPropertyId(_: number, property: Property): string {
     return property._id;
+  }
+
+  getPropertyOwnerId(property: Property): string {
+    const createdBy = property.createdBy;
+    if (typeof createdBy === 'string') {
+      return createdBy;
+    }
+
+    return createdBy?._id || createdBy?.id || '';
   }
 
   private toNumberOrNull(value: string | null): number | null {
