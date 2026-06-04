@@ -3,13 +3,14 @@ import { Component, OnDestroy, OnInit } from '@angular/core';
 import { ActivatedRoute, RouterModule } from '@angular/router';
 import { Subscription } from 'rxjs';
 import { InvestmentResponse, InvestmentService } from '../../services/investment.service';
+import { MortgageCalculatorComponent } from '../../components/mortgage-calculator/mortgage-calculator.component';
 import { Agent, Property, PropertyService } from '../../services/property.service';
 import { ValuationRequest, ValuationResponse, ValuationService } from '../../services/valuation.service';
 
 @Component({
   selector: 'app-property-detail',
   standalone: true,
-  imports: [CommonModule, RouterModule],
+  imports: [CommonModule, RouterModule, MortgageCalculatorComponent],
   templateUrl: './property-detail.component.html',
   styleUrls: ['./property-detail.component.scss']
 })
