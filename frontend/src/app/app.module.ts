@@ -20,6 +20,7 @@ import { LoginComponent } from './components/login/login.component';
 import { RegisterComponent } from './components/register/register.component';
 import { AuthComponent } from './components/auth/auth.component';
 import { ProfileComponent } from './pages/profile/profile.component';
+import { ToastComponent } from './components/toast/toast.component';
 
 // Services
 import { PropertyService } from './services/property.service';
@@ -39,7 +40,8 @@ import { AuthService } from './services/auth.service';
     LoginComponent,
     RegisterComponent,
     AuthComponent,
-    ProfileComponent
+    ProfileComponent,
+    ToastComponent
   ],
   imports: [
     BrowserModule,

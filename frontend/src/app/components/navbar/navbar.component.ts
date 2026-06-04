@@ -1,4 +1,5 @@
 import { Component, OnInit, OnDestroy, HostListener } from '@angular/core';
+import { ElementRef, ViewChild } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { RouterLink, RouterLinkActive, Router } from '@angular/router';
 import { AuthService } from '../../services/auth.service';
@@ -16,8 +17,10 @@ export class NavbarComponent implements OnInit, OnDestroy {
   isMenuOpen: boolean = false;
   isAuthenticated: boolean = false;
   currentUser: any = null;
-  showProfileMenu: boolean = false;
+  isDropdownOpen: boolean = false;
   private destroy$ = new Subject<void>();
+  @ViewChild('dropdownMenu') dropdownMenu?: ElementRef<HTMLElement>;
+  @ViewChild('dropdownToggle') dropdownToggle?: ElementRef<HTMLElement>;
 
   constructor(
     private authService: AuthService,
@@ -60,7 +63,7 @@ export class NavbarComponent implements OnInit, OnDestroy {
   }
 
   toggleProfileMenu(): void {
-    this.showProfileMenu = !this.showProfileMenu;
+    this.isDropdownOpen = !this.isDropdownOpen;
   }
 
   goToProfile(): void {
@@ -73,7 +76,7 @@ export class NavbarComponent implements OnInit, OnDestroy {
   }
 
   closeProfileMenu(): void {
-    this.showProfileMenu = false;
+    this.isDropdownOpen = false;
   }
 
   logout(): void {
@@ -103,8 +106,8 @@ export class NavbarComponent implements OnInit, OnDestroy {
       return;
     }
 
-    const clickedProfileToggle = target.closest?.('[data-profile-toggle]');
-    const clickedProfileMenu = target.closest?.('[data-profile-menu]');
+    const clickedProfileToggle = this.dropdownToggle?.nativeElement.contains(target);
+    const clickedProfileMenu = this.dropdownMenu?.nativeElement.contains(target);
 
     if (!clickedProfileToggle && !clickedProfileMenu) {
       this.closeProfileMenu();

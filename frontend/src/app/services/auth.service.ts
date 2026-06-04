@@ -15,12 +15,20 @@ export interface LoginRequest {
   password: string;
 }
 
+export interface ProfileUpdateRequest {
+  fullName: string;
+  phone?: string;
+}
+
 export interface AuthResponse {
   token: string;
   user: {
     id: string;
     fullName: string;
     email: string;
+    phone?: string;
+    role?: string;
+    createdAt?: string;
   };
 }
 
@@ -72,6 +80,16 @@ export class AuthService {
           this.isAuthenticatedSubject.next(true);
           this.currentUserSubject.next(response.user);
         }
+      })
+    );
+  }
+
+  updateProfile(data: ProfileUpdateRequest): Observable<AuthResponse['user']> {
+    return this.http.put<ApiResponse<{ user: AuthResponse['user'] }>>(`${this.apiUrl}/profile`, data).pipe(
+      map(response => response.data.user),
+      tap(user => {
+        this.setUser(user);
+        this.currentUserSubject.next(user);
       })
     );
   }

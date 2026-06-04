@@ -61,7 +61,7 @@
 
         <div *ngIf="isAuthenticated" class="relative hidden md:block">
           <button
-            data-profile-toggle
+            #dropdownToggle
             (click)="toggleProfileMenu()"
             class="flex items-center gap-3 rounded-2xl border border-gray-200 bg-white px-3 py-2 shadow-sm transition hover:border-emerald-200 dark:border-gray-700 dark:bg-gray-900">
             <div class="flex h-9 w-9 items-center justify-center rounded-full bg-emerald-600 text-sm font-bold text-white">
@@ -73,7 +73,7 @@
             </svg>
           </button>
 
-          <div *ngIf="showProfileMenu" data-profile-menu class="absolute right-0 mt-3 w-72 overflow-hidden rounded-[1.5rem] border border-gray-200 bg-white shadow-2xl shadow-emerald-950/10 dark:border-gray-800 dark:bg-gray-900">
+          <div *ngIf="isDropdownOpen" #dropdownMenu class="absolute right-0 mt-3 w-72 overflow-hidden rounded-[1.5rem] border border-gray-200 bg-white shadow-2xl shadow-emerald-950/10 dark:border-gray-800 dark:bg-gray-900">
             <div class="border-b border-gray-100 px-4 py-4 dark:border-gray-800">
               <p class="text-xs font-semibold uppercase tracking-[0.2em] text-emerald-600 dark:text-emerald-400">Account</p>
               <div class="mt-3 flex items-center gap-3">

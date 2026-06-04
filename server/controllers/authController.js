@@ -172,3 +172,65 @@ exports.login = async (req, res) => {
     });
   }
 };
+
+exports.updateProfile = async (req, res) => {
+  try {
+    const userId = req.user?.id || req.user?._id;
+    const { fullName, phone = '' } = req.body;
+
+    if (!userId) {
+      return res.status(401).json({
+        success: false,
+        message: 'Unauthorized',
+        data: null
+      });
+    }
+
+    if (!fullName || !fullName.trim()) {
+      return res.status(400).json({
+        success: false,
+        message: 'Full name is required',
+        data: null
+      });
+    }
+
+    const updatedUser = await User.findByIdAndUpdate(
+      userId,
+      {
+        fullName: fullName.trim(),
+        phone: phone ? phone.trim() : ''
+      },
+      { new: true, runValidators: true }
+    );
+
+    if (!updatedUser) {
+      return res.status(404).json({
+        success: false,
+        message: 'User not found',
+        data: null
+      });
+    }
+
+    return res.status(200).json({
+      success: true,
+      message: 'Profile updated successfully',
+      data: {
+        user: {
+          id: updatedUser._id,
+          fullName: updatedUser.fullName,
+          email: updatedUser.email,
+          phone: updatedUser.phone || '',
+          role: updatedUser.role,
+          createdAt: updatedUser.createdAt
+        }
+      }
+    });
+  } catch (error) {
+    console.error('[PROFILE UPDATE] Exception caught:', error.message);
+    return res.status(500).json({
+      success: false,
+      message: error.message,
+      data: null
+    });
+  }
+};
