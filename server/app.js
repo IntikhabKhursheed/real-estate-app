@@ -26,6 +26,7 @@ mongoose.connect(mongoURI)
 app.use(cors());
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
+app.use('/uploads', express.static(path.join(__dirname, 'uploads')));
 
 // Health check
 app.get('/health', (req, res) => {
@@ -40,12 +41,14 @@ const searchRoutes = require('./routes/searchRoutes');
 const investmentRoutes = require('./routes/investmentRoutes');
 const dashboardRoutes = require('./routes/dashboardRoutes');
 const marketRoutes = require('./routes/marketRoutes');
+const uploadRoutes = require('./routes/uploadRoutes');
 
 // Mount routes
 app.use('/api/auth', authRoutes);
 app.use('/api/properties', propertyRoutes);
 app.use('/api/properties', searchRoutes);
 app.use('/api/properties', investmentRoutes);
+app.use('/api/upload', uploadRoutes);
 app.use('/api/valuation', valuationRoutes);
 app.use('/api/dashboard', dashboardRoutes);
 app.use('/api/market', marketRoutes);

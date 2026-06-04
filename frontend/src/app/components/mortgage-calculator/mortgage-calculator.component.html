@@ -4,7 +4,7 @@
       <p class="text-sm font-semibold uppercase tracking-wide text-gray-500 dark:text-gray-400">Mortgage Calculator</p>
       <h2 class="mt-2 text-xl font-bold text-gray-950 dark:text-white">Estimate monthly payments</h2>
     </div>
-    <span class="rounded-lg bg-blue-50 px-3 py-1 text-xs font-bold text-blue-700 dark:bg-blue-900/30 dark:text-blue-300">
+    <span class="rounded-lg bg-emerald-600 px-3 py-1 text-xs font-bold text-white shadow-sm dark:bg-emerald-800 dark:text-emerald-50">
       Auto-filled from listing
     </span>
   </div>
@@ -51,27 +51,27 @@
     </label>
   </div>
 
-  <div class="mt-6 grid gap-3 sm:grid-cols-2 xl:grid-cols-4">
-    <div class="rounded-lg bg-gray-50 p-4 dark:bg-gray-800">
+  <div class="mt-6 grid gap-3 grid-cols-1 sm:grid-cols-2">
+    <div class="min-w-0 rounded-lg bg-gray-50 p-4 dark:bg-gray-800">
       <p class="text-xs font-semibold uppercase tracking-wide text-gray-500 dark:text-gray-400">Down Payment</p>
-      <p class="mt-2 text-xl font-bold text-gray-950 dark:text-white">{{ downPaymentFormatted }}</p>
+      <p class="mt-2 break-words text-lg font-bold leading-tight text-gray-950 dark:text-white sm:text-xl">{{ downPaymentFormatted }}</p>
     </div>
-    <div class="rounded-lg bg-gray-50 p-4 dark:bg-gray-800">
+    <div class="min-w-0 rounded-lg bg-gray-50 p-4 dark:bg-gray-800">
       <p class="text-xs font-semibold uppercase tracking-wide text-gray-500 dark:text-gray-400">Loan Amount</p>
-      <p class="mt-2 text-xl font-bold text-gray-950 dark:text-white">{{ loanAmountFormatted }}</p>
+      <p class="mt-2 break-words text-lg font-bold leading-tight text-gray-950 dark:text-white sm:text-xl">{{ loanAmountFormatted }}</p>
     </div>
-    <div class="rounded-lg bg-gray-50 p-4 dark:bg-gray-800">
+    <div class="min-w-0 rounded-lg bg-gray-50 p-4 dark:bg-gray-800">
       <p class="text-xs font-semibold uppercase tracking-wide text-gray-500 dark:text-gray-400">Monthly Installment</p>
-      <p class="mt-2 text-xl font-bold text-blue-600 dark:text-blue-400">{{ monthlyInstallmentFormatted }}</p>
+      <p class="mt-2 break-words text-lg font-bold leading-tight text-emerald-600 dark:text-emerald-400 sm:text-xl">{{ monthlyInstallmentFormatted }}</p>
     </div>
-    <div class="rounded-lg bg-gray-50 p-4 dark:bg-gray-800">
+    <div class="min-w-0 rounded-lg bg-gray-50 p-4 dark:bg-gray-800">
       <p class="text-xs font-semibold uppercase tracking-wide text-gray-500 dark:text-gray-400">Total Interest</p>
-      <p class="mt-2 text-xl font-bold text-gray-950 dark:text-white">{{ totalInterestFormatted }}</p>
+      <p class="mt-2 break-words text-lg font-bold leading-tight text-gray-950 dark:text-white sm:text-xl">{{ totalInterestFormatted }}</p>
     </div>
   </div>
 
-  <div class="mt-4 rounded-lg border border-blue-100 bg-blue-50 p-4 dark:border-blue-900/50 dark:bg-blue-950/30">
-    <p class="text-sm text-blue-900 dark:text-blue-200">
+  <div class="mt-4 rounded-lg border border-emerald-200 bg-emerald-50 p-4 dark:border-emerald-900/50 dark:bg-emerald-950/30">
+    <p class="text-sm text-emerald-900 dark:text-emerald-200">
       Using <span class="font-bold">{{ bankLabel }}</span>, the total payment comes to <span class="font-bold">{{ totalPaymentFormatted }}</span>.
     </p>
   </div>

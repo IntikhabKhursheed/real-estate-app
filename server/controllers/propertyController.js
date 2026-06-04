@@ -1,5 +1,8 @@
 const Property = require('../models/Property');
-const { uploadImagesToCloudinary } = require('../middleware/upload');
+const {
+  storeUploadedImages,
+  resolvePublicUploadUrl
+} = require('../middleware/upload');
 
 // GET /api/properties
 exports.getAllProperties = async (req, res) => {
@@ -264,14 +267,14 @@ exports.uploadPropertyImages = async (req, res) => {
       });
     }
 
-    const uploadedImages = await uploadImagesToCloudinary(
+    const uploadedImages = await storeUploadedImages(
       req.files,
       `estateiq/properties/${property._id}`
     );
 
     property.images = [
       ...(property.images || []),
-      ...uploadedImages.map(image => image.url)
+      ...uploadedImages.map(image => resolvePublicUploadUrl(req, image.url))
     ];
 
     await property.save();

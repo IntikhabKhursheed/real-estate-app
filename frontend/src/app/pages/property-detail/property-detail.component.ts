@@ -25,6 +25,8 @@ export class PropertyDetailComponent implements OnInit, OnDestroy {
   currentUser: any = null;
   deleteConfirmOpen = false;
   isDeleting = false;
+  lightboxOpen = false;
+  lightboxIndex = 0;
 
   isPropertyLoading = true;
   isInvestmentLoading = false;
@@ -137,6 +139,7 @@ export class PropertyDetailComponent implements OnInit, OnDestroy {
       this.propertyService.getPropertyById(this.propertyId).subscribe({
         next: property => {
           this.property = property;
+          this.lightboxIndex = 0;
           this.isPropertyLoading = false;
           this.loadInvestmentScore();
           this.loadValuation();
@@ -214,6 +217,19 @@ export class PropertyDetailComponent implements OnInit, OnDestroy {
     }
 
     return images[0];
+  }
+
+  get galleryImages(): string[] {
+    return this.property?.images || [];
+  }
+
+  get currentLightboxImage(): string | null {
+    if (this.galleryImages.length === 0) {
+      return null;
+    }
+
+    const safeIndex = Math.max(0, Math.min(this.lightboxIndex, this.galleryImages.length - 1));
+    return this.galleryImages[safeIndex] || null;
   }
 
   get propertyTypeLabel(): string {
@@ -402,6 +418,35 @@ export class PropertyDetailComponent implements OnInit, OnDestroy {
 
   trackByText(index: number, value: string): string {
     return `${index}-${value}`;
+  }
+
+  openLightbox(index: number): void {
+    if (this.galleryImages.length === 0) {
+      return;
+    }
+
+    this.lightboxIndex = Math.max(0, Math.min(index, this.galleryImages.length - 1));
+    this.lightboxOpen = true;
+  }
+
+  closeLightbox(): void {
+    this.lightboxOpen = false;
+  }
+
+  nextImage(): void {
+    if (this.galleryImages.length === 0) {
+      return;
+    }
+
+    this.lightboxIndex = (this.lightboxIndex + 1) % this.galleryImages.length;
+  }
+
+  previousImage(): void {
+    if (this.galleryImages.length === 0) {
+      return;
+    }
+
+    this.lightboxIndex = (this.lightboxIndex - 1 + this.galleryImages.length) % this.galleryImages.length;
   }
 
   private toTextList(value: unknown): string[] {

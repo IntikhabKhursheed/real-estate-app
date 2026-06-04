@@ -1,16 +1,21 @@
 import { CommonModule } from '@angular/common';
 import { Component, OnDestroy, OnInit } from '@angular/core';
+import { HttpEventType } from '@angular/common/http';
 import { FormBuilder, ReactiveFormsModule, Validators } from '@angular/forms';
 import { ActivatedRoute, Router, RouterModule } from '@angular/router';
-import { Subscription, of, switchMap } from 'rxjs';
+import { Subscription } from 'rxjs';
 import { Property, PropertyService } from '../../services/property.service';
 import { ToastService } from '../../services/toast.service';
+import { UploadService } from '../../services/upload.service';
 
 interface ImagePreview {
+  id: string;
   name: string;
   size: number;
   url: string;
-  isRemote?: boolean;
+  progress: number;
+  status: 'ready' | 'uploading' | 'done' | 'error';
+  error?: string;
 }
 
 @Component({
@@ -26,7 +31,9 @@ export class PropertyCreateComponent implements OnInit, OnDestroy {
   selectedFiles: File[] = [];
   imagePreviews: ImagePreview[] = [];
   existingImages: string[] = [];
+  dragActive = false;
   isSubmitting = false;
+  isUploadingImages = false;
   isLoadingProperty = false;
   error: string | null = null;
   isEditMode = false;
@@ -55,6 +62,7 @@ export class PropertyCreateComponent implements OnInit, OnDestroy {
   constructor(
     private fb: FormBuilder,
     private propertyService: PropertyService,
+    private uploadService: UploadService,
     private toastService: ToastService,
     private route: ActivatedRoute,
     private router: Router
@@ -88,7 +96,7 @@ export class PropertyCreateComponent implements OnInit, OnDestroy {
   get pageDescription(): string {
     return this.isEditMode
       ? 'Update the listing details and upload any new images you want to append.'
-      : 'Create the listing first, then EstateIQ uploads the selected images to Cloudinary.';
+      : 'Create the listing details, then upload property images before publishing.';
   }
 
   get submitLabel(): string {
@@ -98,34 +106,25 @@ export class PropertyCreateComponent implements OnInit, OnDestroy {
   onFilesSelected(event: Event): void {
     const input = event.target as HTMLInputElement;
     const files = Array.from(input.files || []);
-    this.error = null;
-
-    if (files.length === 0) {
-      return;
-    }
-
-    const validFiles = files.filter(file => file.type.startsWith('image/'));
-    if (validFiles.length !== files.length) {
-      this.error = 'Only image files can be uploaded.';
-    }
-
-    const remainingSlots = Math.max(0, 5 - this.selectedFiles.length - this.existingImages.length);
-    const filesToAdd = validFiles.slice(0, remainingSlots);
-
-    if (validFiles.length > remainingSlots) {
-      this.error = 'You can upload up to 5 images per property.';
-    }
-
-    filesToAdd.forEach(file => {
-      this.selectedFiles.push(file);
-      this.imagePreviews.push({
-        name: file.name,
-        size: file.size,
-        url: URL.createObjectURL(file)
-      });
-    });
+    this.addFiles(files);
 
     input.value = '';
+  }
+
+  onDragOver(event: DragEvent): void {
+    event.preventDefault();
+    this.dragActive = true;
+  }
+
+  onDragLeave(event: DragEvent): void {
+    event.preventDefault();
+    this.dragActive = false;
+  }
+
+  onDrop(event: DragEvent): void {
+    event.preventDefault();
+    this.dragActive = false;
+    this.addFiles(Array.from(event.dataTransfer?.files || []));
   }
 
   removeImage(index: number): void {
@@ -149,34 +148,40 @@ export class PropertyCreateComponent implements OnInit, OnDestroy {
       return;
     }
 
+    if ((this.selectedFiles.length + this.existingImages.length) > 5) {
+      this.error = 'You can upload up to 5 images per property.';
+      return;
+    }
+
     this.isSubmitting = true;
     this.error = null;
+    this.uploadSelectedFiles()
+      .then(uploadedUrls => {
+        const payload = this.buildPropertyPayload(uploadedUrls);
+        const save$ = this.isEditMode && this.editingPropertyId
+          ? this.propertyService.updateProperty(this.editingPropertyId, payload)
+          : this.propertyService.createProperty(payload);
 
-    const payload = this.buildPropertyPayload();
-    const save$ = this.isEditMode && this.editingPropertyId
-      ? this.propertyService.updateProperty(this.editingPropertyId, payload)
-      : this.propertyService.createProperty(payload);
-
-    save$.pipe(
-      switchMap(property => {
-        if (this.selectedFiles.length === 0) {
-          return of(property);
-        }
-
-        return this.propertyService.uploadPropertyImages(property._id, this.selectedFiles);
+        save$.subscribe({
+          next: property => {
+            this.isSubmitting = false;
+            this.toastService.show(this.isEditMode ? 'Property updated.' : 'Property created.', 'success');
+            this.router.navigate(['/properties', property._id]);
+          },
+          error: error => {
+            console.error('Property save error:', error);
+            this.isSubmitting = false;
+            this.error = error.error?.message || 'Property could not be saved right now. Please try again.';
+          }
+        });
       })
-    ).subscribe({
-      next: property => {
+      .catch(error => {
+        console.error('Image upload error:', error);
         this.isSubmitting = false;
-        this.toastService.show(this.isEditMode ? 'Property updated.' : 'Property created.', 'success');
-        this.router.navigate(['/properties', property._id]);
-      },
-      error: error => {
-        console.error('Property save error:', error);
-        this.isSubmitting = false;
-        this.error = error.error?.message || 'Property could not be saved right now. Please try again.';
-      }
-    });
+        this.error = typeof error === 'string'
+          ? error
+          : error?.error?.message || 'Images could not be uploaded right now. Please try again.';
+      });
   }
 
   isInvalid(controlName: string): boolean {
@@ -269,9 +274,101 @@ export class PropertyCreateComponent implements OnInit, OnDestroy {
     });
   }
 
-  private buildPropertyPayload(): Record<string, unknown> {
+  private addFiles(files: File[]): void {
+    this.error = null;
+
+    if (files.length === 0) {
+      return;
+    }
+
+    const validFiles = files.filter(file => this.isSupportedImage(file));
+    if (validFiles.length !== files.length) {
+      this.error = 'Only JPG, PNG, and WebP images can be uploaded.';
+    }
+
+    const remainingSlots = Math.max(0, 5 - this.selectedFiles.length - this.existingImages.length);
+    const filesToAdd = validFiles.slice(0, remainingSlots);
+
+    if (validFiles.length > remainingSlots) {
+      this.error = 'You can upload up to 5 images per property.';
+    }
+
+    filesToAdd.forEach(file => {
+      this.selectedFiles.push(file);
+      this.imagePreviews.push({
+        id: `${Date.now()}-${Math.random().toString(16).slice(2)}`,
+        name: file.name,
+        size: file.size,
+        url: URL.createObjectURL(file),
+        progress: 0,
+        status: 'ready'
+      });
+    });
+  }
+
+  private async uploadSelectedFiles(): Promise<string[]> {
+    if (this.selectedFiles.length === 0) {
+      return [];
+    }
+
+    this.isUploadingImages = true;
+    const uploadedUrls: string[] = [];
+
+    try {
+      for (let index = 0; index < this.selectedFiles.length; index += 1) {
+        const preview = this.imagePreviews[index];
+        const file = this.selectedFiles[index];
+
+        if (!preview || !file) {
+          continue;
+        }
+
+        const uploadedUrl = await this.uploadSingleFile(file, preview);
+        if (uploadedUrl) {
+          uploadedUrls.push(uploadedUrl);
+        }
+      }
+    } finally {
+      this.isUploadingImages = false;
+    }
+
+    return uploadedUrls;
+  }
+
+  private uploadSingleFile(file: File, preview: ImagePreview): Promise<string> {
+    return new Promise((resolve, reject) => {
+      preview.status = 'uploading';
+      preview.progress = 0;
+
+      const subscription = this.uploadService.uploadImage(file).subscribe({
+        next: event => {
+          if (event.type === HttpEventType.UploadProgress && event.total) {
+            preview.progress = Math.round((100 * event.loaded) / event.total);
+          }
+
+          if (event.type === HttpEventType.Response) {
+            const urls = event.body?.data?.urls || [];
+            const uploadedUrl = urls[0] || '';
+            preview.status = 'done';
+            preview.progress = 100;
+            resolve(uploadedUrl);
+            subscription.unsubscribe();
+          }
+        },
+        error: error => {
+          preview.status = 'error';
+          preview.error = error?.error?.message || 'Upload failed';
+          reject(error);
+          subscription.unsubscribe();
+        }
+      });
+    });
+  }
+
+  private buildPropertyPayload(uploadedImageUrls: string[]): Record<string, unknown> {
     const value = this.form.getRawValue();
     const features = this.parseFeatures(value.features || '');
+    const images = [...this.existingImages, ...uploadedImageUrls].slice(0, 5);
 
     return {
       title: value.title?.trim(),
@@ -290,8 +387,12 @@ export class PropertyCreateComponent implements OnInit, OnDestroy {
       propertyAge: Number(value.propertyAge || 0),
       features,
       amenities: features,
-      images: this.existingImages
+      images
     };
+  }
+
+  private isSupportedImage(file: File): boolean {
+    return ['image/jpeg', 'image/png', 'image/webp'].includes(file.type);
   }
 
   private parseFeatures(value: string): string[] {
