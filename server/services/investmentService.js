@@ -1,5 +1,52 @@
 const { model } = require('../config/gemini');
 
+function buildFallbackInvestmentScore(property, reason) {
+  const {
+    city = 'Unknown',
+    price = 0,
+    bedrooms = 0,
+    bathrooms = 0,
+    areaSqFt = 0,
+    propertyType = 'Unknown',
+    amenities = [],
+    propertyAge = 0
+  } = property || {};
+
+  let score = 5.5;
+
+  if (Number(areaSqFt || 0) > 0) {
+    const pricePerSqFt = Number(price || 0) / Number(areaSqFt || 1);
+    if (pricePerSqFt < 15000) score += 1.2;
+    else if (pricePerSqFt < 25000) score += 0.6;
+    else if (pricePerSqFt > 40000) score -= 1.0;
+  }
+
+  if (Number(bedrooms || 0) >= 3) score += 0.4;
+  if (Number(bathrooms || 0) >= 2) score += 0.3;
+  if (Number(propertyAge || 0) <= 10) score += 0.4;
+  if (['apartment', 'house', 'commercial'].includes(String(propertyType || '').toLowerCase())) score += 0.2;
+  if (Array.isArray(amenities) && amenities.length > 0) score += Math.min(amenities.length, 4) * 0.1;
+  if (['lahore', 'karachi', 'islamabad', 'rawalpindi'].includes(String(city || '').toLowerCase())) score += 0.3;
+
+  const normalized = Math.max(1, Math.min(10, Number(score.toFixed(1))));
+
+  return {
+    investmentScore: normalized,
+    confidence: 'Low',
+    reasoning: [
+      'Gemini is temporarily unavailable, so this is a conservative fallback score.',
+      `Based on ${bedrooms || 0} bedrooms, ${bathrooms || 0} bathrooms, and ${areaSqFt || 0} sq ft.`,
+      city ? `City adjustment applied for ${city}.` : 'No city-specific adjustment was available.',
+      `Property type considered as ${propertyType || 'unknown'} for the fallback model.`,
+      Array.isArray(amenities) && amenities.length > 0
+        ? 'Amenities contributed a small positive adjustment.'
+        : 'No amenities were provided for extra adjustment.'
+    ],
+    source: 'fallback',
+    note: reason || 'Fallback score generated because the AI investment service was unavailable.'
+  };
+}
+
 /**
  * Calculate an investment score for a property using Gemini AI.
  * 
@@ -133,7 +180,7 @@ Guidelines:
       reasoning
     };
   } catch (error) {
-    throw new Error(`Investment score service error: ${error.message}`);
+    return buildFallbackInvestmentScore(property, error.message);
   }
 };
 

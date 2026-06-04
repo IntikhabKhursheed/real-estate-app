@@ -169,7 +169,8 @@ export class PropertyDetailComponent implements OnInit, OnDestroy {
         },
         error: error => {
           console.error('Investment score load error:', error);
-          this.investmentError = error.error?.message || 'AI investment score is unavailable right now.';
+          this.investment = this.buildLocalInvestmentFallback();
+          this.investmentError = null;
           this.isInvestmentLoading = false;
         }
       })
@@ -203,7 +204,8 @@ export class PropertyDetailComponent implements OnInit, OnDestroy {
         },
         error: error => {
           console.error('Valuation load error:', error);
-          this.valuationError = error.error?.message || 'AI valuation is unavailable right now.';
+          this.valuation = this.buildLocalValuationFallback();
+          this.valuationError = null;
           this.isValuationLoading = false;
         }
       })
@@ -459,5 +461,81 @@ export class PropertyDetailComponent implements OnInit, OnDestroy {
     }
 
     return [];
+  }
+
+  private buildLocalInvestmentFallback(): InvestmentResponse {
+    const score = this.calculateLocalInvestmentScore();
+    return {
+      investmentScore: score,
+      score,
+      confidence: 'Low',
+      reasoning: [
+        'AI analysis is temporarily unavailable, so this is a conservative local fallback.',
+        `Based on ${this.property?.bedrooms || 0} bedrooms, ${this.property?.bathrooms || 0} bathrooms, and ${this.areaSqFt || 0} sq ft.`,
+        this.property?.city ? `Location adjustment applied for ${this.property.city}.` : 'No location adjustment was available.',
+        `Property type considered as ${this.propertyTypeLabel}.`,
+        Array.isArray(this.features) && this.features.length > 0
+          ? 'Amenities and features contributed a small positive adjustment.'
+          : 'No features were provided for extra uplift.'
+      ]
+    };
+  }
+
+  private buildLocalValuationFallback(): ValuationResponse {
+    const estimatedPrice = this.calculateLocalValuationEstimate();
+    return {
+      estimatedPrice,
+      confidence: 0.25,
+      investmentRating: 'Fallback estimate',
+      reasoning: [
+        'AI valuation is temporarily unavailable, so this is a conservative local fallback.',
+        `Based on ${this.property?.bedrooms || 0} bedrooms, ${this.property?.bathrooms || 0} bathrooms, and ${this.areaSqFt || 0} sq ft.`,
+        this.property?.city ? `City adjustment applied for ${this.property.city}.` : 'No city-specific adjustment was available.',
+        `Property type considered as ${this.propertyTypeLabel}.`
+      ].join(' ')
+    };
+  }
+
+  private calculateLocalInvestmentScore(): number {
+    const areaSqFt = this.areaSqFt || 0;
+    const price = Number(this.property?.price || 0);
+    let score = 55;
+
+    if (areaSqFt > 0) {
+      const pricePerSqFt = price / areaSqFt;
+      if (pricePerSqFt < 15000) score += 12;
+      else if (pricePerSqFt < 25000) score += 6;
+      else if (pricePerSqFt > 40000) score -= 10;
+    }
+
+    if ((this.property?.bedrooms || 0) >= 3) score += 4;
+    if ((this.property?.bathrooms || 0) >= 2) score += 3;
+    if ((this.property?.propertyAge ?? this.property?.age ?? 0) <= 10) score += 4;
+    if (Array.isArray(this.features) && this.features.length > 0) score += Math.min(this.features.length, 4);
+    if (['lahore', 'karachi', 'islamabad', 'rawalpindi'].includes((this.property?.city || '').toLowerCase())) score += 3;
+
+    return Math.max(0, Math.min(100, Math.round(score)));
+  }
+
+  private calculateLocalValuationEstimate(): number {
+    const areaSqFt = this.areaSqFt || 0;
+    const pricePerSqFt = this.propertyTypeLabel.toLowerCase() === 'commercial'
+      ? 14000
+      : this.propertyTypeLabel.toLowerCase() === 'apartment'
+        ? 12500
+        : this.propertyTypeLabel.toLowerCase() === 'plot'
+          ? 9000
+          : 12000;
+
+    const cityMultiplier = ['islamabad', 'rawalpindi'].includes((this.property?.city || '').toLowerCase())
+      ? 1.12
+      : ['lahore', 'karachi'].includes((this.property?.city || '').toLowerCase())
+        ? 1.08
+        : 1.0;
+
+    const amenitiesBonus = Array.isArray(this.features) ? Math.min(this.features.length, 6) * 35000 : 0;
+    const baseEstimate = areaSqFt * pricePerSqFt * cityMultiplier;
+
+    return Math.max(0, Math.round(baseEstimate + amenitiesBonus));
   }
 }
