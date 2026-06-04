@@ -1,5 +1,83 @@
 const { model } = require('../config/gemini');
 
+function buildFallbackValuation(propertyData, reason) {
+  const {
+    city,
+    propertyType,
+    bedrooms = 0,
+    bathrooms = 0,
+    areaSqFt = 0,
+    propertyAge = 0,
+    amenities = []
+  } = propertyData || {};
+
+  const normalizedCity = String(city || '').trim().toLowerCase();
+  const normalizedType = String(propertyType || '').trim().toLowerCase();
+
+  const cityMultiplier = getCityMultiplier(normalizedCity);
+  const typeMultiplier = getPropertyTypeMultiplier(normalizedType);
+  const baseRatePerSqFt = 12000;
+  const amenityBonus = Math.min(Array.isArray(amenities) ? amenities.length : 0, 6) * 45000;
+  const bedroomBonus = Number(bedrooms || 0) * 160000;
+  const bathroomBonus = Number(bathrooms || 0) * 80000;
+  const ageDiscount = Math.min(Number(propertyAge || 0) * 0.01, 0.2);
+
+  const rawEstimate = (
+    Number(areaSqFt || 0) * baseRatePerSqFt * cityMultiplier * typeMultiplier
+    + bedroomBonus
+    + bathroomBonus
+    + amenityBonus
+  ) * (1 - ageDiscount);
+
+  const estimatedPrice = Math.max(0, Math.round(rawEstimate));
+
+  return {
+    estimatedPrice,
+    confidence: 'Low',
+    investmentRating: 6,
+    reasoning: [
+      'Gemini is temporarily rate-limited, so this is a conservative fallback estimate.',
+      `Estimate is based on ${areaSqFt || 0} sq ft, ${bedrooms || 0} bedrooms, and ${bathrooms || 0} bathrooms.`,
+      city ? `Market adjustment applied for ${city}.` : 'No city-specific adjustment was available.',
+      `Property type adjustment applied for ${propertyType || 'unknown property type'}.`,
+      Array.isArray(amenities) && amenities.length > 0
+        ? 'Amenities were included as a small uplift in the fallback model.'
+        : 'No amenities were provided, so no extra uplift was applied.'
+    ],
+    source: 'fallback',
+    note: reason || 'Fallback estimate generated because the AI valuation service was unavailable.'
+  };
+}
+
+function getCityMultiplier(city) {
+  if (['islamabad', 'faisalabad', 'rawalpindi'].includes(city)) return 1.12;
+  if (['lahore', 'karachi'].includes(city)) return 1.08;
+  if (['peshawar', 'multan', 'sialkot', 'gujranwala'].includes(city)) return 0.98;
+  return 1.0;
+}
+
+function getPropertyTypeMultiplier(propertyType) {
+  if (propertyType === 'commercial') return 1.18;
+  if (propertyType === 'apartment') return 1.04;
+  if (propertyType === 'house') return 1.08;
+  if (propertyType === 'plot') return 0.94;
+  return 1.0;
+}
+
+function isGeminiQuotaError(error) {
+  const message = String(error?.message || error || '').toLowerCase();
+  return [
+    '429',
+    'too many requests',
+    'quota',
+    'rate limit',
+    'resource_exhausted',
+    'service unavailable',
+    'failed to fetch',
+    'fetching from'
+  ].some(token => message.includes(token));
+}
+
 /**
  * Estimate the value of a property based on its characteristics using Gemini AI.
  * 
@@ -94,7 +172,11 @@ Respond ONLY with valid JSON. Do not include any conversational filler, markdown
       reasoning
     };
   } catch (error) {
-    throw new Error(`Property valuation service error: ${error.message}`);
+    if (isGeminiQuotaError(error)) {
+      return buildFallbackValuation(propertyData, error.message);
+    }
+
+    throw new Error('Property valuation is temporarily unavailable. Please try again later.');
   }
 };
 
