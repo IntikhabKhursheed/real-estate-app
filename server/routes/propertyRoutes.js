@@ -1,6 +1,7 @@
 const express = require('express');
 const router = express.Router();
 const propertyController = require('../controllers/propertyController');
+const { uploadPropertyImages } = require('../middleware/upload');
 const jwt = require('jsonwebtoken');
 
 // Inline authentication middleware to restrict routes
@@ -46,6 +47,9 @@ router.get('/:id', propertyController.getPropertyById);
 
 // POST /api/properties (Protected)
 router.post('/', authenticateJWT, propertyController.createProperty);
+
+// POST /api/properties/:id/images (Protected)
+router.post('/:id/images', authenticateJWT, uploadPropertyImages, propertyController.uploadPropertyImages);
 
 // PUT /api/properties/:id (Protected)
 router.put('/:id', authenticateJWT, propertyController.updateProperty);

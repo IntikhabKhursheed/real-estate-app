@@ -1,7 +1,8 @@
 import { Injectable } from '@angular/core';
-import { HttpClient } from '@angular/common/http';
+import { HttpClient, HttpParams } from '@angular/common/http';
 import { Observable } from 'rxjs';
 import { map } from 'rxjs/operators';
+import { PropertyListFilters } from '../components/property-filter-sidebar/property-filter-sidebar.component';
 
 export interface Property {
   _id: string;
@@ -54,8 +55,10 @@ export class PropertyService {
 
   constructor(private http: HttpClient) { }
 
-  getProperties(): Observable<Property[]> {
-    return this.http.get<ApiResponse<Property[]>>(this.apiUrl).pipe(
+  getProperties(filters?: PropertyListFilters): Observable<Property[]> {
+    return this.http.get<ApiResponse<Property[]>>(this.apiUrl, {
+      params: this.buildQueryParams(filters)
+    }).pipe(
       map(response => response.data || [])
     );
   }
@@ -79,5 +82,31 @@ export class PropertyService {
     return this.http.post<ApiResponse<Property>>(this.apiUrl, data).pipe(
       map(response => response.data)
     );
+  }
+
+  uploadPropertyImages(propertyId: string, files: File[]): Observable<Property> {
+    const formData = new FormData();
+    files.forEach(file => formData.append('images', file));
+
+    return this.http.post<ApiResponse<Property>>(`${this.apiUrl}/${propertyId}/images`, formData).pipe(
+      map(response => response.data)
+    );
+  }
+
+  private buildQueryParams(filters?: PropertyListFilters): HttpParams {
+    let params = new HttpParams();
+    if (!filters) {
+      return params;
+    }
+
+    Object.entries(filters).forEach(([key, value]) => {
+      if (value === undefined || value === null || value === '') {
+        return;
+      }
+
+      params = params.set(key, String(value));
+    });
+
+    return params;
   }
 }

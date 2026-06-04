@@ -1,13 +1,43 @@
 const Property = require('../models/Property');
+const { uploadImagesToCloudinary } = require('../middleware/upload');
 
 // GET /api/properties
 exports.getAllProperties = async (req, res) => {
   try {
     const filters = {};
-    if (req.query.city) filters.city = new RegExp(req.query.city, 'i');
-    if (req.query.propertyType) filters.propertyType = req.query.propertyType;
+    const { query } = req;
 
-    const properties = await Property.find(filters).populate('createdBy', 'fullName email phone role');
+    if (query.city) filters.city = new RegExp(escapeRegex(String(query.city)), 'i');
+    if (query.propertyType) filters.propertyType = new RegExp(`^${escapeRegex(String(query.propertyType))}$`, 'i');
+    if (query.purpose) filters.purpose = new RegExp(`^${escapeRegex(String(query.purpose))}$`, 'i');
+
+    const bedroomsFilter = buildNumericRangeFilter(query.bedrooms, query.minBedrooms, query.maxBedrooms);
+    if (bedroomsFilter) filters.bedrooms = bedroomsFilter;
+
+    const priceFilter = buildNumericRangeFilter(query.price, query.minPrice, query.maxPrice);
+    if (priceFilter) filters.price = priceFilter;
+
+    const areaFilter = buildNumericRangeFilter(query.areaMarla, query.minAreaMarla, query.maxAreaMarla);
+    if (areaFilter) filters.areaMarla = areaFilter;
+
+    let properties = await Property.find(filters)
+      .populate('createdBy', 'fullName email phone role')
+      .lean();
+
+    if (String(query.sortBy || '').toLowerCase() === 'investment-score') {
+      properties = properties
+        .map(property => ({
+          ...property,
+          investmentScore: calculateListingInvestmentScore(property)
+        }))
+        .sort((a, b) => b.investmentScore - a.investmentScore);
+    } else if (String(query.sortBy || '').toLowerCase() === 'price-low-high') {
+      properties.sort((a, b) => a.price - b.price);
+    } else if (String(query.sortBy || '').toLowerCase() === 'price-high-low') {
+      properties.sort((a, b) => b.price - a.price);
+    } else {
+      properties.sort((a, b) => new Date(b.createdAt || 0) - new Date(a.createdAt || 0));
+    }
 
     return res.status(200).json({
       success: true,
@@ -202,6 +232,62 @@ exports.updateProperty = async (req, res) => {
   }
 };
 
+// POST /api/properties/:id/images
+exports.uploadPropertyImages = async (req, res) => {
+  try {
+    const property = await Property.findById(req.params.id);
+    if (!property) {
+      return res.status(404).json({
+        success: false,
+        message: 'Property not found',
+        data: null
+      });
+    }
+
+    if (property.createdBy.toString() !== req.user.id && req.user.role !== 'admin') {
+      return res.status(403).json({
+        success: false,
+        message: 'Forbidden: You do not have permission to update this property',
+        data: null
+      });
+    }
+
+    if (!req.files || req.files.length === 0) {
+      return res.status(400).json({
+        success: false,
+        message: 'Please select at least one image to upload',
+        data: null
+      });
+    }
+
+    const uploadedImages = await uploadImagesToCloudinary(
+      req.files,
+      `estateiq/properties/${property._id}`
+    );
+
+    property.images = [
+      ...(property.images || []),
+      ...uploadedImages.map(image => image.url)
+    ];
+
+    await property.save();
+
+    const populatedProperty = await Property.findById(property._id).populate('createdBy', 'fullName email phone role');
+
+    return res.status(200).json({
+      success: true,
+      message: 'Property images uploaded successfully',
+      data: populatedProperty
+    });
+  } catch (error) {
+    return res.status(500).json({
+      success: false,
+      message: error.message || 'Error uploading property images',
+      data: null
+    });
+  }
+};
+
 // DELETE /api/properties/:id
 exports.deleteProperty = async (req, res) => {
   try {
@@ -238,3 +324,78 @@ exports.deleteProperty = async (req, res) => {
     });
   }
 };
+
+function buildNumericRangeFilter(exactValue, minValue, maxValue) {
+  const filter = {};
+  let hasValue = false;
+
+  if (exactValue !== undefined && exactValue !== null && String(exactValue).trim() !== '') {
+    const parsed = parseBedroomsValue(exactValue);
+    if (parsed.min !== null) {
+      filter.$gte = parsed.min;
+      hasValue = true;
+    }
+    if (parsed.max !== null) {
+      filter.$lte = parsed.max;
+      hasValue = true;
+    }
+    return hasValue ? filter : null;
+  }
+
+  if (minValue !== undefined && minValue !== null && String(minValue).trim() !== '') {
+    const parsedMin = Number(minValue);
+    if (!Number.isNaN(parsedMin)) {
+      filter.$gte = parsedMin;
+      hasValue = true;
+    }
+  }
+
+  if (maxValue !== undefined && maxValue !== null && String(maxValue).trim() !== '') {
+    const parsedMax = Number(maxValue);
+    if (!Number.isNaN(parsedMax)) {
+      filter.$lte = parsedMax;
+      hasValue = true;
+    }
+  }
+
+  return hasValue ? filter : null;
+}
+
+function parseBedroomsValue(value) {
+  const normalized = String(value).trim().toLowerCase();
+  if (normalized.endsWith('+')) {
+    const minimum = Number(normalized.replace('+', ''));
+    return Number.isNaN(minimum) ? { min: null, max: null } : { min: minimum, max: null };
+  }
+
+  const exact = Number(normalized);
+  return Number.isNaN(exact) ? { min: null, max: null } : { min: exact, max: exact };
+}
+
+function calculateListingInvestmentScore(property) {
+  const price = Number(property.price || 0);
+  const areaSqFt = Number(property.areaSqFt || 0);
+  const bedrooms = Number(property.bedrooms || 0);
+  const bathrooms = Number(property.bathrooms || 0);
+  const areaMarla = Number(property.areaMarla || 0);
+
+  let score = 50;
+
+  if (areaSqFt > 0) {
+    const pricePerSqFt = price / areaSqFt;
+    if (pricePerSqFt < 12000) score += 20;
+    else if (pricePerSqFt < 20000) score += 10;
+    else if (pricePerSqFt > 40000) score -= 15;
+  }
+
+  if (bedrooms >= 3) score += 8;
+  if (bathrooms >= 2) score += 6;
+  if (areaMarla >= 10) score += 10;
+  if (String(property.purpose || '').toLowerCase() === 'rent') score += 5;
+
+  return Math.max(0, Math.min(100, Math.round(score)));
+}
+
+function escapeRegex(value) {
+  return value.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+}

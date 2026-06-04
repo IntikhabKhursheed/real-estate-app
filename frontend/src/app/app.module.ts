@@ -13,7 +13,6 @@ import { AuthInterceptor } from './interceptors/auth.interceptor';
 import { NavbarComponent } from './components/navbar/navbar.component';
 import { FooterComponent } from './components/footer/footer.component';
 import { HomeComponent } from './components/home/home.component';
-import { PropertyListComponent } from './components/property-list/property-list.component';
 import { PropertyValuationComponent } from './components/property-valuation/property-valuation.component';
 import { PropertySearchComponent } from './components/property-search/property-search.component';
 import { InvestmentScoreComponent } from './components/investment-score/investment-score.component';
@@ -33,7 +32,6 @@ import { AuthService } from './services/auth.service';
     NavbarComponent,
     FooterComponent,
     HomeComponent,
-    PropertyListComponent,
     PropertyValuationComponent,
     PropertySearchComponent,
     InvestmentScoreComponent,
