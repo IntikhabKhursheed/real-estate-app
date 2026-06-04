@@ -4,11 +4,20 @@
 
 /* Global Styles */
 :root {
-  --primary-color: #2563eb;
-  --secondary-color: #1e40af;
+  --primary-color: #16a34a;
+  --primary-hover: #15803d;
+  --primary-dark: #166534;
+  --surface-green: #f0fdf4;
+  --highlight-green: #dcfce7;
+  --highlight-text: #166534;
+  --secondary-color: #14532d;
   --success-color: #16a34a;
   --warning-color: #ea580c;
   --error-color: #dc2626;
+  --app-bg: #f8faf8;
+  --app-surface: #ffffff;
+  --app-text: #1f2937;
+  --app-muted: #4b5563;
 }
 
 html, body {
@@ -19,13 +28,17 @@ html, body {
 
 body {
   font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-  background-color: #f3f4f6;
-  color: #1f2937;
+  background-color: var(--app-bg);
+  color: var(--app-text);
 }
 
 body.dark {
-  background-color: #111827;
-  color: #f3f4f6;
+  --app-bg: #0f1f14;
+  --app-surface: #1a2e1e;
+  --app-text: #f0fdf4;
+  --app-muted: #c7e9d1;
+  background-color: var(--app-bg);
+  color: var(--app-text);
 }
 
 /* Smooth transitions */
@@ -82,6 +95,21 @@ body.dark ::-webkit-scrollbar-thumb:hover {
   animation: fadeIn 0.3s ease-in-out;
 }
 
+@keyframes fadeInUp {
+  from {
+    opacity: 0;
+    transform: translateY(16px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.animate-card-enter {
+  animation: fadeInUp 0.45s ease-out;
+}
+
 /* Loading spinner */
 @keyframes spin {
   from {
@@ -101,4 +129,112 @@ body.dark ::-webkit-scrollbar-thumb:hover {
   body {
     background-color: white;
   }
+}
+
+/* Green theme overrides for legacy blue / indigo / purple utilities */
+[class*="bg-blue-"],
+[class*="bg-indigo-"],
+[class*="bg-purple-"] {
+  background-color: var(--primary-color) !important;
+}
+
+[class*="text-blue-"],
+[class*="text-indigo-"],
+[class*="text-purple-"] {
+  color: var(--primary-color) !important;
+}
+
+[class*="border-blue-"],
+[class*="border-indigo-"],
+[class*="border-purple-"] {
+  border-color: color-mix(in srgb, var(--primary-color) 35%, white) !important;
+}
+
+[class*="ring-blue-"],
+[class*="focus:ring-blue-"],
+[class*="focus:border-blue-"] {
+  --tw-ring-color: var(--primary-color) !important;
+  border-color: var(--primary-color) !important;
+}
+
+[class*="accent-blue-"] {
+  accent-color: var(--primary-color) !important;
+}
+
+[class*="from-blue-"],
+[class*="from-indigo-"],
+[class*="from-purple-"],
+[class*="via-blue-"],
+[class*="via-indigo-"],
+[class*="via-purple-"],
+[class*="to-blue-"],
+[class*="to-indigo-"],
+[class*="to-purple-"] {
+  background-image: linear-gradient(135deg, var(--primary-color), var(--primary-dark)) !important;
+}
+
+[class*="hover:bg-blue-"]:hover,
+[class*="hover:bg-indigo-"]:hover,
+[class*="hover:bg-purple-"]:hover {
+  background-color: var(--primary-hover) !important;
+}
+
+[class*="hover:text-blue-"]:hover,
+[class*="hover:text-indigo-"]:hover,
+[class*="hover:text-purple-"]:hover {
+  color: var(--primary-hover) !important;
+}
+
+[class*="bg-blue-50"],
+[class*="bg-indigo-50"],
+[class*="bg-purple-50"] {
+  background-color: var(--surface-green) !important;
+}
+
+[class*="bg-blue-100"],
+[class*="bg-indigo-100"],
+[class*="bg-purple-100"] {
+  background-color: var(--highlight-green) !important;
+}
+
+[class*="text-blue-700"],
+[class*="text-indigo-700"],
+[class*="text-purple-700"],
+[class*="text-blue-800"],
+[class*="text-indigo-800"],
+[class*="text-purple-800"] {
+  color: var(--highlight-text) !important;
+}
+
+[class*="bg-blue-600"],
+[class*="bg-indigo-600"],
+[class*="bg-purple-600"],
+[class*="bg-blue-500"],
+[class*="bg-indigo-500"],
+[class*="bg-purple-500"] {
+  background-color: var(--primary-color) !important;
+}
+
+[class*="hover:bg-blue-700"]:hover,
+[class*="hover:bg-indigo-700"]:hover,
+[class*="hover:bg-purple-700"]:hover {
+  background-color: var(--primary-hover) !important;
+}
+
+[class*="dark:bg-blue-900"],
+[class*="dark:bg-indigo-900"],
+[class*="dark:bg-purple-900"] {
+  background-color: color-mix(in srgb, var(--primary-dark) 70%, black) !important;
+}
+
+[class*="dark:text-blue-400"],
+[class*="dark:text-indigo-400"],
+[class*="dark:text-purple-400"] {
+  color: color-mix(in srgb, var(--primary-color) 85%, white) !important;
+}
+
+[class*="dark:border-blue-700"],
+[class*="dark:border-indigo-700"],
+[class*="dark:border-purple-700"] {
+  border-color: color-mix(in srgb, var(--primary-color) 50%, black) !important;
 }

@@ -18,13 +18,16 @@ export class AppComponent implements OnInit {
     // Initialize theme from localStorage
     const theme = localStorage.getItem('theme');
     if (theme === 'dark') {
-      document.documentElement.classList.add('dark');
+      document.body.classList.add('dark');
+    } else {
+      document.body.classList.remove('dark');
     }
 
     // Hide navbar and footer on auth page
     this.router.events.subscribe(event => {
       if (event instanceof NavigationEnd) {
-        this.showNavbarFooter = !event.url.includes('/auth');
+        const hiddenShellRoutes = ['/auth', '/login', '/register'];
+        this.showNavbarFooter = !hiddenShellRoutes.some(route => event.url.includes(route));
       }
     });
   }

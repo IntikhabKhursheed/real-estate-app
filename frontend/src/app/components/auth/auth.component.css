@@ -2,11 +2,11 @@
 
 :host {
   display: block;
-  background: linear-gradient(to bottom right, #f0f9ff, #e0e7ff);
+  background: linear-gradient(to bottom right, #15803d, #166534);
 }
 
-:host.dark {
-  background: linear-gradient(to bottom right, #111827, #1f2937);
+:host-context(body.dark) {
+  background: linear-gradient(to bottom right, #07130c, #102316);
 }
 
 /* Animations */

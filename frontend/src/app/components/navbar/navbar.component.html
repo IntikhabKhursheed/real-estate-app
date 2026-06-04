@@ -1,141 +1,129 @@
-<nav class="bg-white dark:bg-gray-900 shadow-lg transition-colors duration-300">
-  <div class="max-w-7xl mx-auto px-4">
-    <div class="flex justify-between items-center h-16">
-      <!-- Logo -->
-      <div class="flex-shrink-0">
-        <a routerLink="/" class="text-2xl font-bold text-blue-600 dark:text-blue-400">EstateIQ</a>
+<nav class="sticky top-0 z-50 border-b border-emerald-100/80 bg-white/90 backdrop-blur transition-colors duration-300 dark:border-gray-800 dark:bg-gray-950/90">
+  <div class="mx-auto max-w-7xl px-4">
+    <div class="flex h-16 items-center justify-between gap-4 py-3">
+      <a routerLink="/" class="flex items-center gap-3">
+        <span class="flex h-11 w-11 items-center justify-center rounded-2xl bg-emerald-600 text-lg font-black text-white shadow-lg shadow-emerald-600/20">
+          E
+        </span>
+        <span class="text-2xl font-black tracking-tight text-emerald-700 dark:text-emerald-400">EstateIQ</span>
+      </a>
+
+      <div class="hidden flex-1 items-center justify-center md:flex">
+        <div class="flex items-center gap-1 rounded-full border border-emerald-100 bg-emerald-50/80 px-2 py-1 shadow-sm dark:border-gray-800 dark:bg-gray-900">
+          <a routerLink="/" routerLinkActive="bg-white text-emerald-700 shadow-sm dark:bg-gray-950 dark:text-emerald-400" [routerLinkActiveOptions]="{ exact: true }"
+             class="rounded-full px-4 py-2 text-sm font-semibold text-gray-700 transition hover:text-emerald-700 dark:text-gray-300 dark:hover:text-emerald-400">
+            Home
+          </a>
+          <a routerLink="/properties" routerLinkActive="bg-white text-emerald-700 shadow-sm dark:bg-gray-950 dark:text-emerald-400"
+             class="rounded-full px-4 py-2 text-sm font-semibold text-gray-700 transition hover:text-emerald-700 dark:text-gray-300 dark:hover:text-emerald-400">
+            Properties
+          </a>
+          <a *ngIf="isAuthenticated && (currentUser?.role === 'agent' || currentUser?.role === 'admin')"
+             routerLink="/dashboard" routerLinkActive="bg-white text-emerald-700 shadow-sm dark:bg-gray-950 dark:text-emerald-400"
+             class="rounded-full px-4 py-2 text-sm font-semibold text-gray-700 transition hover:text-emerald-700 dark:text-gray-300 dark:hover:text-emerald-400">
+            Dashboard
+          </a>
+          <a routerLink="/valuation" routerLinkActive="bg-white text-emerald-700 shadow-sm dark:bg-gray-950 dark:text-emerald-400"
+             class="rounded-full px-4 py-2 text-sm font-semibold text-gray-700 transition hover:text-emerald-700 dark:text-gray-300 dark:hover:text-emerald-400">
+            Valuation
+          </a>
+          <a routerLink="/search" routerLinkActive="bg-white text-emerald-700 shadow-sm dark:bg-gray-950 dark:text-emerald-400"
+             class="rounded-full px-4 py-2 text-sm font-semibold text-gray-700 transition hover:text-emerald-700 dark:text-gray-300 dark:hover:text-emerald-400">
+            Search
+          </a>
+          <a routerLink="/market-intelligence" routerLinkActive="bg-white text-emerald-700 shadow-sm dark:bg-gray-950 dark:text-emerald-400"
+             class="rounded-full px-4 py-2 text-sm font-semibold text-gray-700 transition hover:text-emerald-700 dark:text-gray-300 dark:hover:text-emerald-400">
+            Market Intelligence
+          </a>
+        </div>
       </div>
 
-      <!-- Desktop Menu -->
-      <div class="hidden md:flex space-x-8">
-        <a routerLink="/" routerLinkActive="text-blue-600 dark:text-blue-400" [routerLinkActiveOptions]="{ exact: true }" 
-           class="text-gray-700 dark:text-gray-300 hover:text-blue-600 dark:hover:text-blue-400 transition">
-          Home
-        </a>
-        <a routerLink="/properties" routerLinkActive="text-blue-600 dark:text-blue-400" 
-           class="text-gray-700 dark:text-gray-300 hover:text-blue-600 dark:hover:text-blue-400 transition">
-          Properties
-        </a>
-        <a *ngIf="isAuthenticated && (currentUser?.role === 'agent' || currentUser?.role === 'admin')"
-           routerLink="/dashboard" routerLinkActive="text-blue-600 dark:text-blue-400" 
-           class="text-gray-700 dark:text-gray-300 hover:text-blue-600 dark:hover:text-blue-400 transition">
-          Dashboard
-        </a>
-        <a routerLink="/valuation" routerLinkActive="text-blue-600 dark:text-blue-400" 
-           class="text-gray-700 dark:text-gray-300 hover:text-blue-600 dark:hover:text-blue-400 transition">
-          Valuation
-        </a>
-        <a routerLink="/search" routerLinkActive="text-blue-600 dark:text-blue-400" 
-           class="text-gray-700 dark:text-gray-300 hover:text-blue-600 dark:hover:text-blue-400 transition">
-          Search
-        </a>
-        <a routerLink="/market-intelligence" routerLinkActive="text-blue-600 dark:text-blue-400" 
-           class="text-gray-700 dark:text-gray-300 hover:text-blue-600 dark:hover:text-blue-400 transition">
-          Market Intelligence
-        </a>
-      </div>
-
-      <!-- Auth & Theme Controls -->
-      <div class="flex items-center space-x-4">
-        <!-- Theme Toggle -->
-        <button (click)="toggleTheme()" 
-                class="p-2 rounded-lg bg-gray-200 dark:bg-gray-700 text-yellow-500 dark:text-yellow-400 transition"
+      <div class="flex items-center gap-3">
+        <button (click)="toggleTheme()"
+                class="inline-flex h-11 w-11 items-center justify-center rounded-2xl border border-gray-200 bg-white text-amber-500 shadow-sm transition hover:border-emerald-200 hover:text-emerald-600 dark:border-gray-700 dark:bg-gray-900 dark:text-amber-400"
                 title="Toggle dark mode">
-          <svg *ngIf="!isDarkMode" class="w-5 h-5" fill="currentColor" viewBox="0 0 20 20">
+          <svg *ngIf="!isDarkMode" class="h-5 w-5" fill="currentColor" viewBox="0 0 20 20">
             <path d="M17.293 13.293A8 8 0 016.707 2.707a8.001 8.001 0 1010.586 10.586z"></path>
           </svg>
-          <svg *ngIf="isDarkMode" class="w-5 h-5" fill="currentColor" viewBox="0 0 20 20">
+          <svg *ngIf="isDarkMode" class="h-5 w-5" fill="currentColor" viewBox="0 0 20 20">
             <path fill-rule="evenodd" d="M10 2a1 1 0 011 1v1a1 1 0 11-2 0V3a1 1 0 011-1zm4 8a4 4 0 11-8 0 4 4 0 018 0zm-.464 4.536l.707.707a1 1 0 001.414-1.414l-.707-.707a1 1 0 00-1.414 1.414zm2.12-10.607a1 1 0 010 1.414l-.707.707a1 1 0 11-1.414-1.414l.707-.707a1 1 0 011.414 0zM17 11a1 1 0 100-2h-1a1 1 0 100 2h1zm-7 4a1 1 0 011 1v1a1 1 0 11-2 0v-1a1 1 0 011-1zM5.05 6.464A1 1 0 106.464 5.05l-.707-.707a1 1 0 00-1.414 1.414l.707.707zm5.657-9.193a1 1 0 00-1.414 1.414l.707.707a1 1 0 001.414-1.414l-.707-.707zm0 18.386a1 1 0 001.414-1.414l-.707-.707a1 1 0 00-1.414 1.414l.707.707zM4 11a1 1 0 100-2H3a1 1 0 100 2h1z" clip-rule="evenodd"></path>
           </svg>
         </button>
 
-        <!-- Auth Buttons (Desktop) -->
-        <div *ngIf="!isAuthenticated" class="hidden md:flex space-x-3">
-          <a routerLink="/login" class="px-4 py-2 text-gray-700 dark:text-gray-300 hover:text-blue-600 dark:hover:text-blue-400 transition">
+        <div *ngIf="!isAuthenticated" class="hidden md:flex items-center gap-3">
+          <a routerLink="/login" class="rounded-full px-4 py-2 text-sm font-semibold text-gray-700 transition hover:text-emerald-700 dark:text-gray-300 dark:hover:text-emerald-400">
             Login
           </a>
-          <a routerLink="/register" class="px-4 py-2 bg-blue-600 hover:bg-blue-700 dark:bg-blue-500 dark:hover:bg-blue-600 text-white rounded-lg transition">
+          <a routerLink="/register" class="rounded-full bg-emerald-600 px-4 py-2 text-sm font-semibold text-white shadow-sm transition hover:bg-emerald-700">
             Register
           </a>
         </div>
 
-        <!-- Profile Menu (Desktop) -->
-        <div *ngIf="isAuthenticated" class="hidden md:flex items-center space-x-4">
-          <div class="relative">
-            <button (click)="toggleProfileMenu()" class="flex items-center space-x-2 px-4 py-2 rounded-lg hover:bg-gray-100 dark:hover:bg-gray-700 transition">
-              <div class="w-8 h-8 rounded-full bg-blue-600 flex items-center justify-center text-white text-sm font-bold">
-                {{ currentUser?.fullName?.charAt(0)?.toUpperCase() || 'U' }}
-              </div>
-              <span class="text-gray-700 dark:text-gray-300">{{ currentUser?.fullName }}</span>
-              <svg class="w-4 h-4 text-gray-700 dark:text-gray-300" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 14l-7 7m0 0l-7-7m7 7V3"></path>
-              </svg>
-            </button>
-
-            <!-- Profile Dropdown -->
-            <div *ngIf="showProfileMenu" class="absolute right-0 mt-2 w-48 bg-white dark:bg-gray-800 rounded-lg shadow-lg py-2 z-50">
-              <a routerLink="/" (click)="closeProfileMenu()" class="block px-4 py-2 text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700 transition">
-                Profile
-              </a>
-              <button (click)="logout()" class="w-full text-left px-4 py-2 text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700 transition">
-                Logout
-              </button>
+        <div *ngIf="isAuthenticated" class="relative hidden md:block">
+          <button (click)="toggleProfileMenu()" class="flex items-center gap-3 rounded-2xl border border-gray-200 bg-white px-3 py-2 shadow-sm transition hover:border-emerald-200 dark:border-gray-700 dark:bg-gray-900">
+            <div class="flex h-9 w-9 items-center justify-center rounded-full bg-emerald-600 text-sm font-bold text-white">
+              {{ currentUser?.fullName?.charAt(0)?.toUpperCase() || 'U' }}
             </div>
+            <span class="max-w-[140px] truncate text-sm font-semibold text-gray-700 dark:text-gray-300">{{ currentUser?.fullName }}</span>
+            <svg class="h-4 w-4 text-gray-500 dark:text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 14l-7 7m0 0l-7-7m7 7V3"></path>
+            </svg>
+          </button>
+
+          <div *ngIf="showProfileMenu" class="absolute right-0 mt-3 w-56 overflow-hidden rounded-2xl border border-gray-200 bg-white shadow-2xl shadow-emerald-950/10 dark:border-gray-800 dark:bg-gray-900">
+            <button (click)="goToProfile()" class="block w-full px-4 py-3 text-left text-sm font-semibold text-gray-700 transition hover:bg-emerald-50 hover:text-emerald-700 dark:text-gray-300 dark:hover:bg-gray-800 dark:hover:text-emerald-300">
+              Profile
+            </button>
+            <button (click)="logout()" class="block w-full px-4 py-3 text-left text-sm font-semibold text-gray-700 transition hover:bg-red-50 hover:text-red-700 dark:text-gray-300 dark:hover:bg-gray-800 dark:hover:text-red-300">
+              Logout
+            </button>
           </div>
         </div>
 
-        <!-- Mobile Menu Button -->
-        <button (click)="toggleMenu()" class="md:hidden p-2 rounded-lg hover:bg-gray-200 dark:hover:bg-gray-700">
-          <svg class="w-6 h-6 text-gray-700 dark:text-gray-300" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+        <button (click)="toggleMenu()" class="inline-flex h-11 w-11 items-center justify-center rounded-2xl border border-gray-200 bg-white text-gray-700 shadow-sm md:hidden dark:border-gray-700 dark:bg-gray-900 dark:text-gray-300">
+          <svg class="h-6 w-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16"></path>
           </svg>
         </button>
       </div>
     </div>
 
-    <!-- Mobile Menu -->
-    <div *ngIf="isMenuOpen" class="md:hidden pb-4 border-t border-gray-200 dark:border-gray-700">
-      <a routerLink="/" (click)="closeMenu()" routerLinkActive="text-blue-600 dark:text-blue-400" [routerLinkActiveOptions]="{ exact: true }" 
-         class="block px-4 py-2 text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-800 rounded transition">
-        Home
-      </a>
-      <a routerLink="/properties" (click)="closeMenu()" routerLinkActive="text-blue-600 dark:text-blue-400" 
-         class="block px-4 py-2 text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-800 rounded transition">
-        Properties
-      </a>
-      <a *ngIf="isAuthenticated && (currentUser?.role === 'agent' || currentUser?.role === 'admin')"
-         routerLink="/dashboard" (click)="closeMenu()" routerLinkActive="text-blue-600 dark:text-blue-400" 
-         class="block px-4 py-2 text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-800 rounded transition">
-        Dashboard
-      </a>
-      <a routerLink="/valuation" (click)="closeMenu()" routerLinkActive="text-blue-600 dark:text-blue-400" 
-         class="block px-4 py-2 text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-800 rounded transition">
-        Valuation
-      </a>
-      <a routerLink="/search" (click)="closeMenu()" routerLinkActive="text-blue-600 dark:text-blue-400" 
-         class="block px-4 py-2 text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-800 rounded transition">
-        Search
-      </a>
-      <a routerLink="/market-intelligence" (click)="closeMenu()" routerLinkActive="text-blue-600 dark:text-blue-400" 
-         class="block px-4 py-2 text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-800 rounded transition">
-        Market Intelligence
-      </a>
-
-      <!-- Mobile Auth -->
-      <div *ngIf="!isAuthenticated" class="border-t border-gray-200 dark:border-gray-700 mt-4 pt-4 space-y-2">
-        <a routerLink="/login" (click)="closeMenu()" class="block px-4 py-2 text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-800 rounded transition">
-          Login
+    <div *ngIf="isMenuOpen" class="pb-4 md:hidden">
+      <div class="space-y-2 rounded-2xl border border-emerald-100 bg-white p-3 shadow-lg dark:border-gray-800 dark:bg-gray-900">
+        <a routerLink="/" (click)="closeMenu()" routerLinkActive="text-emerald-700 dark:text-emerald-400" [routerLinkActiveOptions]="{ exact: true }" class="block rounded-xl px-4 py-3 text-sm font-semibold text-gray-700 transition hover:bg-emerald-50 dark:text-gray-300 dark:hover:bg-gray-800">
+          Home
         </a>
-        <a routerLink="/register" (click)="closeMenu()" class="block px-4 py-2 bg-blue-600 text-white rounded transition">
-          Register
+        <a routerLink="/properties" (click)="closeMenu()" routerLinkActive="text-emerald-700 dark:text-emerald-400" class="block rounded-xl px-4 py-3 text-sm font-semibold text-gray-700 transition hover:bg-emerald-50 dark:text-gray-300 dark:hover:bg-gray-800">
+          Properties
         </a>
-      </div>
+        <a *ngIf="isAuthenticated && (currentUser?.role === 'agent' || currentUser?.role === 'admin')" routerLink="/dashboard" (click)="closeMenu()" routerLinkActive="text-emerald-700 dark:text-emerald-400" class="block rounded-xl px-4 py-3 text-sm font-semibold text-gray-700 transition hover:bg-emerald-50 dark:text-gray-300 dark:hover:bg-gray-800">
+          Dashboard
+        </a>
+        <a routerLink="/valuation" (click)="closeMenu()" routerLinkActive="text-emerald-700 dark:text-emerald-400" class="block rounded-xl px-4 py-3 text-sm font-semibold text-gray-700 transition hover:bg-emerald-50 dark:text-gray-300 dark:hover:bg-gray-800">
+          Valuation
+        </a>
+        <a routerLink="/search" (click)="closeMenu()" routerLinkActive="text-emerald-700 dark:text-emerald-400" class="block rounded-xl px-4 py-3 text-sm font-semibold text-gray-700 transition hover:bg-emerald-50 dark:text-gray-300 dark:hover:bg-gray-800">
+          Search
+        </a>
+        <a routerLink="/market-intelligence" (click)="closeMenu()" routerLinkActive="text-emerald-700 dark:text-emerald-400" class="block rounded-xl px-4 py-3 text-sm font-semibold text-gray-700 transition hover:bg-emerald-50 dark:text-gray-300 dark:hover:bg-gray-800">
+          Market Intelligence
+        </a>
 
-      <div *ngIf="isAuthenticated" class="border-t border-gray-200 dark:border-gray-700 mt-4 pt-4">
-        <p class="px-4 py-2 text-gray-700 dark:text-gray-300 font-semibold">{{ currentUser?.fullName }}</p>
-        <button (click)="logout(); closeMenu()" class="w-full text-left px-4 py-2 text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-800 rounded transition">
-          Logout
-        </button>
+        <div *ngIf="!isAuthenticated" class="pt-2">
+          <a routerLink="/login" (click)="closeMenu()" class="block rounded-xl px-4 py-3 text-sm font-semibold text-gray-700 transition hover:bg-emerald-50 dark:text-gray-300 dark:hover:bg-gray-800">
+            Login
+          </a>
+          <a routerLink="/register" (click)="closeMenu()" class="block rounded-xl bg-emerald-600 px-4 py-3 text-center text-sm font-semibold text-white transition hover:bg-emerald-700">
+            Register
+          </a>
+        </div>
+
+        <div *ngIf="isAuthenticated" class="pt-2">
+          <p class="px-4 py-2 text-sm font-semibold text-gray-700 dark:text-gray-300">{{ currentUser?.fullName }}</p>
+          <button (click)="logout(); closeMenu()" class="w-full rounded-xl px-4 py-3 text-left text-sm font-semibold text-gray-700 transition hover:bg-red-50 dark:text-gray-300 dark:hover:bg-gray-800">
+            Logout
+          </button>
+        </div>
       </div>
     </div>
   </div>

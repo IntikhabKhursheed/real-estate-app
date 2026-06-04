@@ -63,6 +63,11 @@ export class NavbarComponent implements OnInit, OnDestroy {
     this.showProfileMenu = !this.showProfileMenu;
   }
 
+  goToProfile(): void {
+    this.closeProfileMenu();
+    this.router.navigate(['/profile']);
+  }
+
   closeMenu(): void {
     this.isMenuOpen = false;
   }
@@ -74,11 +79,12 @@ export class NavbarComponent implements OnInit, OnDestroy {
   logout(): void {
     this.authService.logout();
     this.closeProfileMenu();
-    this.router.navigate(['/']);
+    this.closeMenu();
+    this.router.navigateByUrl('/login', { replaceUrl: true });
   }
 
   private applyTheme(): void {
-    const root = document.documentElement;
+    const root = document.body;
     if (this.isDarkMode) {
       root.classList.add('dark');
     } else {
