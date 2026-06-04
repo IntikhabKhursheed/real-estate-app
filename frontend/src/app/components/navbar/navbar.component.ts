@@ -1,4 +1,4 @@
-import { Component, OnInit, OnDestroy } from '@angular/core';
+import { Component, OnInit, OnDestroy, HostListener } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { RouterLink, RouterLinkActive, Router } from '@angular/router';
 import { AuthService } from '../../services/auth.service';
@@ -94,5 +94,20 @@ export class NavbarComponent implements OnInit, OnDestroy {
 
   private prefersDarkMode(): boolean {
     return window.matchMedia('(prefers-color-scheme: dark)').matches;
+  }
+
+  @HostListener('document:click', ['$event'])
+  onDocumentClick(event: MouseEvent): void {
+    const target = event.target as HTMLElement | null;
+    if (!target) {
+      return;
+    }
+
+    const clickedProfileToggle = target.closest?.('[data-profile-toggle]');
+    const clickedProfileMenu = target.closest?.('[data-profile-menu]');
+
+    if (!clickedProfileToggle && !clickedProfileMenu) {
+      this.closeProfileMenu();
+    }
   }
 }

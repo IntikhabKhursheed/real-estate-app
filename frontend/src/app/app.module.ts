@@ -19,6 +19,7 @@ import { InvestmentScoreComponent } from './components/investment-score/investme
 import { LoginComponent } from './components/login/login.component';
 import { RegisterComponent } from './components/register/register.component';
 import { AuthComponent } from './components/auth/auth.component';
+import { ProfileComponent } from './pages/profile/profile.component';
 
 // Services
 import { PropertyService } from './services/property.service';
@@ -37,7 +38,8 @@ import { AuthService } from './services/auth.service';
     InvestmentScoreComponent,
     LoginComponent,
     RegisterComponent,
-    AuthComponent
+    AuthComponent,
+    ProfileComponent
   ],
   imports: [
     BrowserModule,
