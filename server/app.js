@@ -15,17 +15,22 @@ const mongoose = require('mongoose');
 const cors = require('cors');
 
 const app = express();
+const DEFAULT_FRONTEND_ORIGIN = 'https://real-estate-app-client-amber.vercel.app';
 
 const normalizeOrigin = (value) => String(value || '').trim().replace(/\/+$/, '');
 const allowedOrigins = new Set(
   [
     process.env.FRONTEND_ORIGIN,
     process.env.FRONTEND_URL,
-    'https://real-estate-app-client-amber.vercel.app'
+    DEFAULT_FRONTEND_ORIGIN
   ]
     .filter(Boolean)
     .map(normalizeOrigin)
 );
+
+if (process.env.NODE_ENV === 'production' && !process.env.FRONTEND_ORIGIN && !process.env.FRONTEND_URL) {
+  console.warn('[CORS] FRONTEND_ORIGIN is missing. Falling back to the default production frontend domain.');
+}
 
 console.log('[CORS] Allowed origins:', Array.from(allowedOrigins).join(', '));
 
@@ -68,7 +73,6 @@ mongoose.connect(mongoURI)
 
 // Core middleware - MUST be before routes
 app.use(cors(corsOptions));
-app.options('*', cors(corsOptions));
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 app.use('/uploads', express.static(path.join(__dirname, 'uploads')));
