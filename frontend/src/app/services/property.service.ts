@@ -114,8 +114,8 @@ export class PropertyService {
   searchProperties(query: string): Observable<any> {
     return this.http.post<ApiResponse<any>>(`${this.apiUrl}/search`, { query }).pipe(
       map(response => ({
-        results: response.data?.results || [],
-        reasoning: response.data?.reasoning || ''
+        results: Array.isArray(response.data) ? response.data : (response.data?.results || []),
+        reasoning: Array.isArray(response.data) ? '' : (response.data?.reasoning || '')
       }))
     );
   }

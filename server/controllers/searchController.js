@@ -19,6 +19,7 @@ exports.search = async (req, res) => {
 
     // Parse natural language query into structured filters
     const filter = await searchProperties(query.trim());
+    const reasoning = buildSearchReasoning(filter);
 
     // Build MongoDB query
     const mongoQuery = {};
@@ -83,7 +84,10 @@ exports.search = async (req, res) => {
     return res.status(200).json({
       success: true,
       message: `Found ${properties.length} properties matching your search`,
-      data: properties
+      data: {
+        results: properties,
+        reasoning
+      }
     });
   } catch (error) {
     return res.status(500).json({
@@ -93,3 +97,33 @@ exports.search = async (req, res) => {
     });
   }
 };
+
+function buildSearchReasoning(filter) {
+  const parts = [];
+
+  if (filter.city) parts.push(`city: ${filter.city}`);
+  if (filter.propertyType) parts.push(`property type: ${filter.propertyType}`);
+  if (filter.minBedrooms !== null && filter.maxBedrooms !== null && filter.minBedrooms === filter.maxBedrooms) {
+    parts.push(`bedrooms: ${filter.minBedrooms}`);
+  } else {
+    if (filter.minBedrooms !== null) parts.push(`minimum bedrooms: ${filter.minBedrooms}`);
+    if (filter.maxBedrooms !== null) parts.push(`maximum bedrooms: ${filter.maxBedrooms}`);
+  }
+  if (filter.minBathrooms !== null && filter.maxBathrooms !== null && filter.minBathrooms === filter.maxBathrooms) {
+    parts.push(`bathrooms: ${filter.minBathrooms}`);
+  } else {
+    if (filter.minBathrooms !== null) parts.push(`minimum bathrooms: ${filter.minBathrooms}`);
+    if (filter.maxBathrooms !== null) parts.push(`maximum bathrooms: ${filter.maxBathrooms}`);
+  }
+  if (filter.minPrice !== null) parts.push(`min price: ${filter.minPrice}`);
+  if (filter.maxPrice !== null) parts.push(`max price: ${filter.maxPrice}`);
+  if (Array.isArray(filter.amenities) && filter.amenities.length > 0) {
+    parts.push(`amenities: ${filter.amenities.join(', ')}`);
+  }
+
+  if (parts.length === 0) {
+    return 'No strong filters were extracted, so the search used the query as a broad match.';
+  }
+
+  return `Parsed search intent with ${parts.join('; ')}.`;
+}

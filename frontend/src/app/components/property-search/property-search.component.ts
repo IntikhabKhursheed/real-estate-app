@@ -29,7 +29,8 @@ export class PropertySearchComponent implements OnInit {
 
   onSearch(): void {
     if (this.form.invalid) {
-      this.error = 'Please enter a search query (minimum 3 characters)';
+      this.form.get('query')?.markAsTouched();
+      this.error = 'Please enter a search query (minimum 3 characters). Try a phrase like "3 bedroom house in Lahore".';
       return;
     }
 
@@ -52,7 +53,6 @@ export class PropertySearchComponent implements OnInit {
         }
       },
       error: (err) => {
-        console.error('Search error:', err);
         this.error = err.error?.message || 'Search failed. Please try again.';
         this.isLoading = false;
         this.hasSearched = true;
