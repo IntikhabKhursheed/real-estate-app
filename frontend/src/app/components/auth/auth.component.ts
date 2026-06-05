@@ -3,6 +3,7 @@ import { CommonModule } from '@angular/common';
 import { ReactiveFormsModule, FormBuilder, FormGroup, Validators, AbstractControl, ValidationErrors } from '@angular/forms';
 import { Router } from '@angular/router';
 import { AuthService } from '../../services/auth.service';
+import { ToastService } from '../../services/toast.service';
 
 @Component({
   selector: 'app-auth',
@@ -16,7 +17,6 @@ export class AuthComponent implements OnInit {
   registerForm!: FormGroup;
   isLoading: boolean = false;
   errorMessage: string = '';
-  successMessage: string = '';
   showPassword: boolean = false;
   showConfirmPassword: boolean = false;
   isDarkMode: boolean = false;
@@ -24,7 +24,8 @@ export class AuthComponent implements OnInit {
   constructor(
     private formBuilder: FormBuilder,
     private authService: AuthService,
-    private router: Router
+    private router: Router,
+    private toastService: ToastService
   ) {}
 
   ngOnInit(): void {
@@ -72,7 +73,6 @@ export class AuthComponent implements OnInit {
   toggleMode(): void {
     this.isLoginMode = !this.isLoginMode;
     this.errorMessage = '';
-    this.successMessage = '';
   }
 
   togglePasswordVisibility(): void {
@@ -95,10 +95,10 @@ export class AuthComponent implements OnInit {
     this.authService.login(this.loginForm.value).subscribe({
       next: () => {
         this.isLoading = false;
-        this.successMessage = 'Login successful! Redirecting...';
+        this.toastService.show('Login successful.', 'success');
         setTimeout(() => {
           this.router.navigate(['/']);
-        }, 1500);
+        }, 300);
       },
       error: (err) => {
         this.isLoading = false;
@@ -125,10 +125,10 @@ export class AuthComponent implements OnInit {
     this.authService.register(registerData).subscribe({
       next: () => {
         this.isLoading = false;
-        this.successMessage = 'Registration successful! Redirecting...';
+        this.toastService.show('Registration successful.', 'success');
         setTimeout(() => {
           this.router.navigate(['/']);
-        }, 1500);
+        }, 300);
       },
       error: (err) => {
         this.isLoading = false;

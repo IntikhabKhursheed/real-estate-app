@@ -11,16 +11,33 @@
   
   <!-- Favicon -->
   <link rel="icon" type="image/x-icon" href="favicon.ico">
-  
+
   <style>
     html, body {
       margin: 0;
       padding: 0;
       font-family: Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+      color-scheme: light;
     }
   </style>
 </head>
 <body>
+  <script>
+    (function () {
+      try {
+        var theme = localStorage.getItem('theme');
+        var prefersDark = window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches;
+        var shouldUseDark = theme === 'dark' || (!theme && prefersDark);
+        if (shouldUseDark) {
+          document.body.classList.add('dark');
+        } else {
+          document.body.classList.remove('dark');
+        }
+      } catch (error) {
+        // Ignore storage access issues and keep the default theme.
+      }
+    })();
+  </script>
   <app-root></app-root>
 </body>
 </html>

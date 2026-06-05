@@ -72,10 +72,6 @@
             {{ errorMessage }}
           </div>
 
-          <div *ngIf="successMessage" class="mb-6 rounded-2xl border border-emerald-200 bg-emerald-50 px-4 py-3 text-sm text-emerald-700 dark:border-emerald-900 dark:bg-emerald-950/40 dark:text-emerald-300">
-            {{ successMessage }}
-          </div>
-
           <form *ngIf="isLoginMode" [formGroup]="loginForm" (ngSubmit)="onLoginSubmit()" class="space-y-5">
             <div>
               <label class="mb-2 block text-sm font-semibold text-gray-700 dark:text-gray-300">
