@@ -33,6 +33,26 @@ app.get('/health', (req, res) => {
   res.json({ status: 'ok' });
 });
 
+app.get('/api/health', (req, res) => {
+  res.json({ status: 'ok' });
+});
+
+app.get('/', (req, res) => {
+  res.json({
+    status: 'ok',
+    service: 'EstateIQ API',
+    endpoints: [
+      '/api/health',
+      '/api/auth',
+      '/api/properties',
+      '/api/valuation',
+      '/api/dashboard',
+      '/api/market',
+      '/api/upload'
+    ]
+  });
+});
+
 // Route handlers - Import and mount AFTER core middleware
 const authRoutes = require('./routes/authRoutes');
 const propertyRoutes = require('./routes/propertyRoutes');
