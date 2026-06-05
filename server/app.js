@@ -16,6 +16,48 @@ const cors = require('cors');
 
 const app = express();
 
+const normalizeOrigin = (value) => String(value || '').trim().replace(/\/+$/, '');
+const allowedOrigins = new Set(
+  [
+    process.env.FRONTEND_ORIGIN,
+    process.env.FRONTEND_URL,
+    'https://real-estate-app-client-amber.vercel.app'
+  ]
+    .filter(Boolean)
+    .map(normalizeOrigin)
+);
+
+if (process.env.NODE_ENV !== 'production') {
+  [
+    'http://localhost:4200',
+    'http://127.0.0.1:4200',
+    'http://localhost:3000',
+    'http://127.0.0.1:3000'
+  ].forEach(origin => allowedOrigins.add(normalizeOrigin(origin)));
+}
+
+const corsOptions = {
+  origin(origin, callback) {
+    if (!origin) {
+      callback(null, true);
+      return;
+    }
+
+    const normalizedOrigin = normalizeOrigin(origin);
+    if (allowedOrigins.has(normalizedOrigin)) {
+      callback(null, true);
+      return;
+    }
+
+    callback(new Error(`CORS blocked for origin: ${origin}`));
+  },
+  credentials: true,
+  methods: ['GET', 'HEAD', 'POST', 'PUT', 'PATCH', 'DELETE', 'OPTIONS'],
+  allowedHeaders: ['Content-Type', 'Authorization', 'Accept', 'Origin', 'X-Requested-With'],
+  exposedHeaders: ['Authorization'],
+  optionsSuccessStatus: 200
+};
+
 // Connect to MongoDB
 const mongoURI = process.env.MONGODB_URI || 'mongodb://127.0.0.1:27017/estateiq';
 mongoose.connect(mongoURI)
@@ -23,7 +65,8 @@ mongoose.connect(mongoURI)
   .catch(err => console.error('[DB] MongoDB error:', err.message));
 
 // Core middleware - MUST be before routes
-app.use(cors());
+app.use(cors(corsOptions));
+app.options('*', cors(corsOptions));
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 app.use('/uploads', express.static(path.join(__dirname, 'uploads')));
