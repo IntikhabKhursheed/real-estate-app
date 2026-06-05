@@ -2,6 +2,7 @@ import { Injectable } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { Observable } from 'rxjs';
 import { map } from 'rxjs/operators';
+import { environment } from '../../environments/environment';
 
 export interface MarketAreaInsight {
   area: string;
@@ -36,7 +37,7 @@ interface ApiResponse<T> {
   providedIn: 'root'
 })
 export class MarketIntelligenceService {
-  private apiUrl = 'http://localhost:5000/api/market';
+  private apiUrl = `${environment.apiUrl}/market`;
 
   constructor(private http: HttpClient) { }
 

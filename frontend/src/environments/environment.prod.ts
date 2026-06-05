@@ -1,4 +1,4 @@
 export const environment = {
   production: true,
-  apiUrl: 'https://api.estateiq.com/api'
+  apiUrl: 'https://real-estate-app-server-six.vercel.app/api'
 };

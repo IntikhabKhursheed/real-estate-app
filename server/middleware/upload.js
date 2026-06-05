@@ -12,8 +12,10 @@ const cloudinaryUrl = process.env.CLOUDINARY_URL || '';
 const cloudName = process.env.CLOUDINARY_CLOUD_NAME || process.env.CLOUD_NAME;
 const apiKey = process.env.CLOUDINARY_API_KEY;
 const apiSecret = process.env.CLOUDINARY_API_SECRET;
+const isVercel = process.env.VERCEL === '1' || process.env.VERCEL === 'true';
 
-const useCloudinary = Boolean(cloudinaryUrl || (cloudName && apiKey && apiSecret));
+const hasCloudinaryConfig = Boolean(cloudinaryUrl || (cloudName && apiKey && apiSecret));
+const useCloudinary = hasCloudinaryConfig || isVercel;
 
 if (cloudinaryUrl) {
   const parsed = new URL(cloudinaryUrl);
@@ -23,7 +25,7 @@ if (cloudinaryUrl) {
     api_secret: decodeURIComponent(parsed.password),
     secure: true
   });
-} else if (useCloudinary) {
+} else if (hasCloudinaryConfig) {
   cloudinary.config({
     cloud_name: cloudName,
     api_key: apiKey,
@@ -138,6 +140,9 @@ const storeUploadedImages = async (files, folder = 'estateiq/uploads') => {
   }
 
   if (useCloudinary) {
+    if (!hasCloudinaryConfig) {
+      throw new Error('Cloudinary is required for image uploads on Vercel. Please set the Cloudinary environment variables.');
+    }
     return uploadImagesToCloudinary(files, folder);
   }
 

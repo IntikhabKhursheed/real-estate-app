@@ -2,6 +2,7 @@ import { Injectable } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { Observable } from 'rxjs';
 import { map } from 'rxjs/operators';
+import { environment } from '../../environments/environment';
 
 export interface InvestmentResponse {
   investmentScore: number;
@@ -21,8 +22,8 @@ interface ApiResponse<T> {
   providedIn: 'root'
 })
 export class InvestmentService {
-  private apiUrl = 'http://localhost:5000/api/properties/investment';
-  private valuationApiUrl = 'http://localhost:5000/api/valuation';
+  private apiUrl = `${environment.apiUrl}/properties/investment`;
+  private valuationApiUrl = `${environment.apiUrl}/valuation`;
 
   constructor(private http: HttpClient) { }
 

@@ -2,6 +2,7 @@ import { Injectable } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { Observable } from 'rxjs';
 import { map } from 'rxjs/operators';
+import { environment } from '../../environments/environment';
 
 export interface ValuationRequest {
   city: string;
@@ -31,7 +32,7 @@ interface ApiResponse<T> {
   providedIn: 'root'
 })
 export class ValuationService {
-  private apiUrl = 'http://localhost:5000/api/valuation/estimate';
+  private apiUrl = `${environment.apiUrl}/valuation/estimate`;
 
   constructor(private http: HttpClient) { }
 

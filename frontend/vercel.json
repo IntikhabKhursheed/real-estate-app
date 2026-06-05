@@ -1,0 +1,10 @@
+{
+  "buildCommand": "npm run build:prod",
+  "outputDirectory": "dist/estateiq-frontend",
+  "rewrites": [
+    {
+      "source": "/(.*)",
+      "destination": "/index.html"
+    }
+  ]
+}

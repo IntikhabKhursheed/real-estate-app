@@ -3,6 +3,7 @@ import { HttpClient, HttpParams } from '@angular/common/http';
 import { Observable } from 'rxjs';
 import { map } from 'rxjs/operators';
 import { PropertyListFilters } from '../components/property-filter-sidebar/property-filter-sidebar.component';
+import { environment } from '../../environments/environment';
 
 export interface Property {
   _id: string;
@@ -86,8 +87,8 @@ interface ApiResponse<T> {
   providedIn: 'root'
 })
 export class PropertyService {
-  private apiUrl = 'http://localhost:5000/api/properties';
-  private dashboardApiUrl = 'http://localhost:5000/api/dashboard';
+  private apiUrl = `${environment.apiUrl}/properties`;
+  private dashboardApiUrl = `${environment.apiUrl}/dashboard`;
 
   constructor(private http: HttpClient) { }
 

@@ -1,6 +1,7 @@
 import { HttpClient, HttpEvent, HttpEventType } from '@angular/common/http';
 import { Injectable } from '@angular/core';
 import { map, Observable } from 'rxjs';
+import { environment } from '../../environments/environment';
 
 interface ApiResponse<T> {
   success: boolean;
@@ -16,7 +17,7 @@ export interface UploadImagesResponse {
   providedIn: 'root'
 })
 export class UploadService {
-  private readonly uploadUrl = 'http://localhost:5000/api/upload';
+  private readonly uploadUrl = `${environment.apiUrl}/upload`;
 
   constructor(private http: HttpClient) { }
 
