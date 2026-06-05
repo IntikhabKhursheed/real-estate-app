@@ -27,6 +27,8 @@ const allowedOrigins = new Set(
     .map(normalizeOrigin)
 );
 
+console.log('[CORS] Allowed origins:', Array.from(allowedOrigins).join(', '));
+
 if (process.env.NODE_ENV !== 'production') {
   [
     'http://localhost:4200',
@@ -49,7 +51,7 @@ const corsOptions = {
       return;
     }
 
-    callback(new Error(`CORS blocked for origin: ${origin}`));
+    callback(null, false);
   },
   credentials: true,
   methods: ['GET', 'HEAD', 'POST', 'PUT', 'PATCH', 'DELETE', 'OPTIONS'],
