@@ -27,6 +27,7 @@ export class PropertyDetailComponent implements OnInit, OnDestroy {
   isDeleting = false;
   lightboxOpen = false;
   lightboxIndex = 0;
+  brokenImageUrls = new Set<string>();
 
   isPropertyLoading = true;
   isInvestmentLoading = false;
@@ -139,6 +140,7 @@ export class PropertyDetailComponent implements OnInit, OnDestroy {
       this.propertyService.getPropertyById(this.propertyId).subscribe({
         next: property => {
           this.property = property;
+          this.brokenImageUrls.clear();
           this.lightboxIndex = 0;
           this.isPropertyLoading = false;
           this.loadInvestmentScore();
@@ -218,11 +220,12 @@ export class PropertyDetailComponent implements OnInit, OnDestroy {
       return null;
     }
 
-    return images[0];
+    const image = images[0];
+    return image && !this.brokenImageUrls.has(image) ? image : null;
   }
 
   get galleryImages(): string[] {
-    return this.property?.images || [];
+    return (this.property?.images || []).filter(image => image && !this.brokenImageUrls.has(image));
   }
 
   get currentLightboxImage(): string | null {
@@ -420,6 +423,12 @@ export class PropertyDetailComponent implements OnInit, OnDestroy {
 
   trackByText(index: number, value: string): string {
     return `${index}-${value}`;
+  }
+
+  markImageBroken(url: string): void {
+    if (url) {
+      this.brokenImageUrls.add(url);
+    }
   }
 
   openLightbox(index: number): void {

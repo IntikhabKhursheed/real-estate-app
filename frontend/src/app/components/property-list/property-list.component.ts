@@ -17,6 +17,7 @@ import { ToastService } from '../../services/toast.service';
 export class PropertyListComponent implements OnInit, OnDestroy {
   properties: Property[] = [];
   cityOptions: string[] = [];
+  brokenImageUrls = new Set<string>();
   isLoading = false;
   isCityLoading = false;
   error: string | null = null;
@@ -80,6 +81,7 @@ export class PropertyListComponent implements OnInit, OnDestroy {
     this.propertyService.getProperties(this.filters).subscribe({
       next: (properties) => {
         this.properties = properties;
+        this.brokenImageUrls.clear();
         this.syncCurrentPage();
         if (this.cityOptions.length === 0 && properties.length > 0) {
           this.cityOptions = this.extractCityOptions(properties);
@@ -187,6 +189,18 @@ export class PropertyListComponent implements OnInit, OnDestroy {
 
   trackByPropertyId(_: number, property: Property): string {
     return property._id;
+  }
+
+  hasVisibleImage(property: Property): boolean {
+    const image = property.images?.[0];
+    return Boolean(image && !this.brokenImageUrls.has(image));
+  }
+
+  markImageBroken(property: Property): void {
+    const image = property.images?.[0];
+    if (image) {
+      this.brokenImageUrls.add(image);
+    }
   }
 
   isNewProperty(property: Property): boolean {

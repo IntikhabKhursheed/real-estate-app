@@ -57,7 +57,8 @@
                 class="block h-full w-full">
           <img [src]="image"
                [alt]="p.title"
-               class="h-full w-full object-cover">
+               class="h-full w-full object-cover"
+               (error)="markImageBroken(image)">
         </button>
 
         <ng-template #heroPlaceholder>
@@ -87,7 +88,7 @@
                 type="button"
                 (click)="openLightbox(i)"
                 class="group h-28 overflow-hidden rounded-lg border border-gray-200 bg-gray-100 dark:border-gray-800 dark:bg-gray-900">
-          <img [src]="image" [alt]="p.title" class="h-full w-full object-cover transition duration-300 group-hover:scale-105">
+          <img [src]="image" [alt]="p.title" class="h-full w-full object-cover transition duration-300 group-hover:scale-105" (error)="markImageBroken(image)">
         </button>
       </section>
 

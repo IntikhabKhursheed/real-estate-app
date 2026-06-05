@@ -50,8 +50,8 @@
         <div *ngIf="!isLoading && properties.length > 0" class="grid grid-cols-1 gap-6 md:grid-cols-2 xl:grid-cols-3">
           <div *ngFor="let property of paginatedProperties; trackBy: trackByPropertyId" class="overflow-hidden rounded-lg border border-green-100 bg-white shadow-lg transition hover:-translate-y-1 hover:shadow-2xl hover:shadow-emerald-950/10 dark:border-gray-800 dark:bg-gray-900">
             <div class="relative h-48 overflow-hidden bg-green-100 dark:bg-emerald-950">
-              <ng-container *ngIf="property.images?.[0] as image; else propertyImagePlaceholder">
-                <img [src]="image" [alt]="property.title" class="h-full w-full object-cover">
+              <ng-container *ngIf="hasVisibleImage(property); else propertyImagePlaceholder">
+                <img [src]="property.images?.[0]" [alt]="property.title" class="h-full w-full object-cover" (error)="markImageBroken(property)">
               </ng-container>
               <ng-template #propertyImagePlaceholder>
                 <div class="flex h-full w-full items-center justify-center bg-gradient-to-br from-emerald-600 via-green-700 to-emerald-950">
