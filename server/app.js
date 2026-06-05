@@ -18,15 +18,21 @@ const app = express();
 const DEFAULT_FRONTEND_ORIGIN = 'https://real-estate-app-client-amber.vercel.app';
 
 const normalizeOrigin = (value) => String(value || '').trim().replace(/\/+$/, '');
-const allowedOrigins = new Set(
-  [
-    process.env.FRONTEND_ORIGIN,
-    process.env.FRONTEND_URL,
-    DEFAULT_FRONTEND_ORIGIN
-  ]
-    .filter(Boolean)
-    .map(normalizeOrigin)
-);
+// const allowedOrigins = new Set(
+//   [
+//     process.env.FRONTEND_ORIGIN,
+//     process.env.FRONTEND_URL,
+//     DEFAULT_FRONTEND_ORIGIN
+//   ]
+//     .filter(Boolean)
+//     .map(normalizeOrigin)
+// );
+const allowedOrigins = new Set([
+  'https://real-estate-app-client-amber.vercel.app',
+  process.env.FRONTEND_ORIGIN,
+  process.env.FRONTEND_URL,
+  'http://localhost:4200'
+].filter(Boolean).map(normalizeOrigin));
 
 if (process.env.NODE_ENV === 'production' && !process.env.FRONTEND_ORIGIN && !process.env.FRONTEND_URL) {
   console.warn('[CORS] FRONTEND_ORIGIN is missing. Falling back to the default production frontend domain.');
