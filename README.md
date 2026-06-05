@@ -84,30 +84,3 @@ npm install
 # Install frontend dependencies
 cd ../frontend
 npm install
-
-
-
-Create server/.env:
-
-PORT=5000
-MONGODB_URI=your_mongodb_atlas_uri
-JWT_SECRET=your_jwt_secret
-GEMINI_API_KEY=your_gemini_api_key
-FRONTEND_ORIGIN=https://real-estate-app-client-amber.vercel.app
-NODE_ENV=development
-
-
-🌐 Live Demo
-Frontend: real-estate-app-client-amber.vercel.app
-Backend API: https://real-estate-app-server-six.vercel.app
-🗺️ Roadmap
- WhatsApp inquiry integration
- Saved properties / favorites
- Email notifications for new listings
- Advanced analytics dashboard
- Mobile app (Ionic/Capacitor)
-👨‍💻 Developer
-
-Intikhab Khursheed — Full Stack Developer
-
-LinkedIn | GitHub | Portfolio
