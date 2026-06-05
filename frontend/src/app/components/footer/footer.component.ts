@@ -8,4 +8,8 @@ import { Component } from '@angular/core';
 })
 export class FooterComponent {
   currentYear = new Date().getFullYear();
+  ownerName = 'Intikhab Khursheed';
+  ownerTitle = 'Founder & Developer';
+  ownerPhone = '+92 335 99199883';
+  ownerEmail = 'intikhab.khursheed@gmail.com';
 }

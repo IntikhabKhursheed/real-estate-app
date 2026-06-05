@@ -1,33 +1,38 @@
-<footer class="bg-gray-800 dark:bg-gray-950 text-white mt-16 py-8 transition-colors duration-300">
-  <div class="max-w-7xl mx-auto px-4">
-    <div class="grid grid-cols-1 md:grid-cols-3 gap-8 mb-8">
-      <!-- About -->
+<footer class="mt-16 bg-slate-900 text-slate-100 transition-colors duration-300">
+  <div class="mx-auto max-w-7xl px-4 py-12 sm:px-6 lg:px-8">
+    <div class="grid gap-10 md:grid-cols-3">
       <div>
-        <h3 class="text-xl font-bold mb-4">EstateIQ</h3>
-        <p class="text-gray-300">Smart real estate analysis powered by AI. Get accurate valuations and investment insights.</p>
+        <h3 class="text-2xl font-bold tracking-tight text-white">EstateIQ</h3>
+        <p class="mt-4 max-w-sm text-sm leading-6 text-slate-300">
+          Smart real estate analysis powered by AI. Get accurate valuations and investment insights.
+        </p>
       </div>
 
-      <!-- Links -->
       <div>
-        <h4 class="text-lg font-semibold mb-4">Quick Links</h4>
-        <ul class="space-y-2 text-gray-300">
-          <li><a href="#" class="hover:text-blue-400 transition">Home</a></li>
-          <li><a href="#" class="hover:text-blue-400 transition">Properties</a></li>
-          <li><a href="#" class="hover:text-blue-400 transition">Valuation</a></li>
-          <li><a href="#" class="hover:text-blue-400 transition">Search</a></li>
+        <h4 class="text-lg font-semibold text-white">Quick Links</h4>
+        <ul class="mt-4 space-y-3 text-sm text-emerald-400">
+          <li><a routerLink="/" class="transition hover:text-emerald-300">Home</a></li>
+          <li><a routerLink="/properties" class="transition hover:text-emerald-300">Properties</a></li>
+          <li><a routerLink="/valuation" class="transition hover:text-emerald-300">Valuation</a></li>
+          <li><a routerLink="/search" class="transition hover:text-emerald-300">Search</a></li>
         </ul>
       </div>
 
-      <!-- Contact -->
       <div>
-        <h4 class="text-lg font-semibold mb-4">Contact</h4>
-        <p class="text-gray-300 mb-2">Email: info&#64;estateiq.com</p>
-        <p class="text-gray-300">Phone: +1 (555) 123-4567</p>
+        <h4 class="text-lg font-semibold text-white">Contact</h4>
+        <div class="mt-4 space-y-3 text-sm text-slate-300">
+          <p><span class="font-medium text-white">Name:</span> {{ ownerName }}</p>
+          <p><span class="font-medium text-white">Role:</span> {{ ownerTitle }}</p>
+          <p><span class="font-medium text-white">Email:</span> <a class="text-emerald-400 transition hover:text-emerald-300" [href]="'mailto:' + ownerEmail">{{ ownerEmail }}</a></p>
+          <p><span class="font-medium text-white">Phone:</span> <a class="text-emerald-400 transition hover:text-emerald-300" [href]="'tel:' + ownerPhone">{{ ownerPhone }}</a></p>
+        </div>
       </div>
     </div>
 
-    <div class="border-t border-gray-700 pt-8">
-      <p class="text-center text-gray-400">&copy; {{ currentYear }} EstateIQ. All rights reserved.</p>
+    <div class="mt-10 border-t border-white/10 pt-6">
+      <p class="text-center text-sm text-slate-400">
+        &copy; {{ currentYear }} EstateIQ. All rights reserved.
+      </p>
     </div>
   </div>
 </footer>
