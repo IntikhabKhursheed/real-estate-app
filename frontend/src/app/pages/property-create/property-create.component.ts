@@ -142,6 +142,10 @@ export class PropertyCreateComponent implements OnInit, OnDestroy {
   }
 
   onSubmit(): void {
+    if (this.isSubmitting || this.isUploadingImages) {
+      return;
+    }
+
     if (this.form.invalid) {
       this.form.markAllAsTouched();
       this.error = 'Please complete all required property details before publishing.';

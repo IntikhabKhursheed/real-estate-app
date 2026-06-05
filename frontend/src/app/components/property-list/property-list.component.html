@@ -5,7 +5,7 @@
         <h1 class="text-4xl font-bold text-gray-900 dark:text-white">Available Properties</h1>
         <p class="mt-2 text-sm text-gray-500 dark:text-gray-400">Filtered results update the URL so you can share them.</p>
       </div>
-      <a routerLink="/properties/new"
+      <a *ngIf="currentUser" routerLink="/properties/new"
          class="inline-flex items-center justify-center rounded-lg bg-emerald-600 px-5 py-3 font-semibold text-white transition hover:bg-emerald-700">
         Add New Property
       </a>
@@ -48,7 +48,7 @@
         </div>
 
         <div *ngIf="!isLoading && properties.length > 0" class="grid grid-cols-1 gap-6 md:grid-cols-2 xl:grid-cols-3">
-          <div *ngFor="let property of properties; trackBy: trackByPropertyId" class="overflow-hidden rounded-lg border border-green-100 bg-white shadow-lg transition hover:-translate-y-1 hover:shadow-2xl hover:shadow-emerald-950/10 dark:border-gray-800 dark:bg-gray-900">
+          <div *ngFor="let property of paginatedProperties; trackBy: trackByPropertyId" class="overflow-hidden rounded-lg border border-green-100 bg-white shadow-lg transition hover:-translate-y-1 hover:shadow-2xl hover:shadow-emerald-950/10 dark:border-gray-800 dark:bg-gray-900">
             <div class="relative h-48 overflow-hidden bg-green-100 dark:bg-emerald-950">
               <ng-container *ngIf="property.images?.[0] as image; else propertyImagePlaceholder">
                 <img [src]="image" [alt]="property.title" class="h-full w-full object-cover">
@@ -74,6 +74,9 @@
                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6M9 7V4h6v3m-8 0h10"></path>
                   </svg>
                 </button>
+              </div>
+              <div *ngIf="isNewProperty(property)" class="absolute left-3 bottom-3 rounded-full bg-emerald-600 px-3 py-1 text-xs font-bold uppercase tracking-wide text-white shadow-md">
+                New
               </div>
               <div *ngIf="property.status" class="absolute left-3 top-3 rounded-full px-3 py-1 text-xs font-bold shadow-sm" [ngClass]="property.status === 'Active' ? 'bg-emerald-600 text-white' : 'bg-gray-700 text-white'">
                 {{ property.status }}
@@ -126,6 +129,31 @@
               </a>
             </div>
           </div>
+        </div>
+
+        <div *ngIf="!isLoading && properties.length > 0" class="flex items-center justify-between gap-3 rounded-lg border border-gray-200 bg-white px-4 py-4 shadow-sm dark:border-gray-800 dark:bg-gray-900">
+          <button
+            type="button"
+            (click)="goToPreviousPage()"
+            [disabled]="currentPage === 1"
+            class="rounded-lg border border-emerald-200 bg-white px-4 py-2 text-sm font-semibold text-emerald-700 transition hover:border-emerald-300 hover:text-emerald-800 disabled:cursor-not-allowed disabled:opacity-50 dark:border-emerald-900/50 dark:bg-gray-950 dark:text-emerald-300">
+            Previous
+          </button>
+
+          <div class="text-sm font-semibold text-gray-600 dark:text-gray-300">
+            Page {{ currentPage }} of {{ totalPages }}
+            <span class="ml-2 text-xs font-normal text-gray-400 dark:text-gray-500">
+              Showing {{ pageRangeLabel }} of {{ properties.length }}
+            </span>
+          </div>
+
+          <button
+            type="button"
+            (click)="goToNextPage()"
+            [disabled]="currentPage === totalPages"
+            class="rounded-lg bg-emerald-600 px-4 py-2 text-sm font-semibold text-white transition hover:bg-emerald-700 disabled:cursor-not-allowed disabled:opacity-50">
+            Next
+          </button>
         </div>
 
         <div *ngIf="deleteTarget" class="fixed inset-0 z-[60] flex items-center justify-center bg-black/50 px-4">

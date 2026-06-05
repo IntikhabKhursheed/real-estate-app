@@ -20,6 +20,8 @@ export class PropertyListComponent implements OnInit, OnDestroy {
   isLoading = false;
   isCityLoading = false;
   error: string | null = null;
+  currentPage = 1;
+  readonly pageSize = 9;
   filters: PropertyListFilters = {
     sortBy: 'newest'
   };
@@ -49,6 +51,7 @@ export class PropertyListComponent implements OnInit, OnDestroy {
 
     this.subscriptions.add(
       this.route.queryParamMap.subscribe(params => {
+        this.currentPage = 1;
         this.filters = {
           city: params.get('city') || undefined,
           propertyType: params.get('propertyType') || undefined,
@@ -77,6 +80,10 @@ export class PropertyListComponent implements OnInit, OnDestroy {
     this.propertyService.getProperties(this.filters).subscribe({
       next: (properties) => {
         this.properties = properties;
+        this.syncCurrentPage();
+        if (this.cityOptions.length === 0 && properties.length > 0) {
+          this.cityOptions = this.extractCityOptions(properties);
+        }
         this.isLoading = false;
       },
       error: (err) => {
@@ -89,12 +96,9 @@ export class PropertyListComponent implements OnInit, OnDestroy {
 
   loadCityOptions(): void {
     this.isCityLoading = true;
-    this.propertyService.getProperties().subscribe({
+    this.propertyService.getPropertyCities().subscribe({
       next: (properties) => {
-        const cities = properties
-          .map(property => property.city)
-          .filter((city): city is string => Boolean(city));
-        this.cityOptions = Array.from(new Set(cities)).sort((a, b) => a.localeCompare(b));
+        this.cityOptions = properties;
         this.isCityLoading = false;
       },
       error: () => {
@@ -105,6 +109,7 @@ export class PropertyListComponent implements OnInit, OnDestroy {
   }
 
   onApplyFilters(filters: PropertyListFilters): void {
+    this.currentPage = 1;
     this.router.navigate([], {
       relativeTo: this.route,
       queryParams: this.toQueryParams(filters),
@@ -114,6 +119,7 @@ export class PropertyListComponent implements OnInit, OnDestroy {
   }
 
   onResetFilters(): void {
+    this.currentPage = 1;
     this.router.navigate(['/properties']);
   }
 
@@ -150,6 +156,7 @@ export class PropertyListComponent implements OnInit, OnDestroy {
     this.propertyService.deleteProperty(target._id).subscribe({
       next: () => {
         this.properties = this.properties.filter(property => property._id !== target._id);
+        this.syncCurrentPage();
         this.toastService.show('Property deleted.', 'error');
         this.isDeleting = false;
         this.deleteTarget = null;
@@ -182,6 +189,51 @@ export class PropertyListComponent implements OnInit, OnDestroy {
     return property._id;
   }
 
+  isNewProperty(property: Property): boolean {
+    if (!property.createdAt) {
+      return false;
+    }
+
+    const createdAt = new Date(property.createdAt);
+    if (Number.isNaN(createdAt.getTime())) {
+      return false;
+    }
+
+    const sevenDaysInMs = 7 * 24 * 60 * 60 * 1000;
+    return Date.now() - createdAt.getTime() <= sevenDaysInMs;
+  }
+
+  get totalPages(): number {
+    return Math.max(1, Math.ceil(this.properties.length / this.pageSize));
+  }
+
+  get paginatedProperties(): Property[] {
+    const startIndex = (this.currentPage - 1) * this.pageSize;
+    return this.properties.slice(startIndex, startIndex + this.pageSize);
+  }
+
+  get pageRangeLabel(): string {
+    if (this.properties.length === 0) {
+      return '0';
+    }
+
+    const start = (this.currentPage - 1) * this.pageSize + 1;
+    const end = Math.min(this.currentPage * this.pageSize, this.properties.length);
+    return `${start}-${end}`;
+  }
+
+  goToPreviousPage(): void {
+    if (this.currentPage > 1) {
+      this.currentPage -= 1;
+    }
+  }
+
+  goToNextPage(): void {
+    if (this.currentPage < this.totalPages) {
+      this.currentPage += 1;
+    }
+  }
+
   getPropertyOwnerId(property: Property): string {
     const createdBy = property.createdBy;
     if (typeof createdBy === 'string') {
@@ -198,6 +250,27 @@ export class PropertyListComponent implements OnInit, OnDestroy {
 
     const parsed = Number(value);
     return Number.isNaN(parsed) ? null : parsed;
+  }
+
+  private syncCurrentPage(): void {
+    const totalPages = this.totalPages;
+    if (this.currentPage > totalPages) {
+      this.currentPage = totalPages;
+    }
+    if (this.currentPage < 1) {
+      this.currentPage = 1;
+    }
+  }
+
+  private extractCityOptions(properties: Property[]): string[] {
+    const cities = properties
+      .map(property => property.city)
+      .filter((city): city is string => Boolean(city));
+
+    return Array.from(new Set(cities))
+      .map(city => city.trim())
+      .filter(city => city.length > 0)
+      .sort((a, b) => a.localeCompare(b));
   }
 
   private toQueryParams(filters: PropertyListFilters): Record<string, string> {

@@ -99,6 +99,12 @@ export class PropertyService {
     );
   }
 
+  getPropertyCities(): Observable<string[]> {
+    return this.http.get<ApiResponse<string[]>>(`${this.apiUrl}/cities`).pipe(
+      map(response => response.data || [])
+    );
+  }
+
   getPropertyById(id: string): Observable<Property> {
     return this.http.get<ApiResponse<Property>>(`${this.apiUrl}/${id}`).pipe(
       map(response => response.data)

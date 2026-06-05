@@ -42,6 +42,9 @@ const authenticateJWT = (req, res, next) => {
 // GET /api/properties (Public)
 router.get('/', propertyController.getAllProperties);
 
+// GET /api/properties/cities (Public)
+router.get('/cities', propertyController.getPropertyCities);
+
 // GET /api/properties/:id (Public)
 router.get('/:id', propertyController.getPropertyById);
 

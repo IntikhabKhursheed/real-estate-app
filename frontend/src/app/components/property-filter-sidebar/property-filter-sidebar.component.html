@@ -4,7 +4,7 @@
       <h2 class="text-lg font-bold text-gray-950 dark:text-white">Filters</h2>
       <p class="mt-1 text-sm text-gray-500 dark:text-gray-400">Refine the listing set and keep the URL shareable.</p>
     </div>
-    <button type="button" (click)="onReset()" class="text-sm font-semibold text-blue-600 hover:text-blue-700 dark:text-blue-400">
+    <button type="button" (click)="onReset()" class="text-sm font-semibold text-emerald-600 hover:text-emerald-700 dark:text-emerald-400">
       Reset
     </button>
   </div>
@@ -47,8 +47,8 @@
         <span class="text-xs text-gray-500 dark:text-gray-400">PKR</span>
       </div>
       <div class="mt-3 space-y-3">
-        <input formControlName="minPrice" type="range" min="0" max="500000000" step="500000" class="w-full accent-blue-600">
-        <input formControlName="maxPrice" type="range" min="0" max="500000000" step="500000" class="w-full accent-blue-600">
+        <input formControlName="minPrice" type="range" min="0" max="500000000" step="500000" class="w-full accent-emerald-600">
+        <input formControlName="maxPrice" type="range" min="0" max="500000000" step="500000" class="w-full accent-emerald-600">
         <div class="flex items-center justify-between text-xs text-gray-500 dark:text-gray-400">
           <span>{{ minPriceLabel }}</span>
           <span>{{ maxPriceLabel }}</span>
@@ -74,7 +74,7 @@
       </select>
     </label>
 
-    <button type="button" (click)="onApply()" class="w-full rounded-lg bg-blue-600 px-4 py-3 font-bold text-white transition hover:bg-blue-700 dark:bg-blue-500 dark:hover:bg-blue-600">
+    <button type="button" (click)="onApply()" class="w-full rounded-lg bg-emerald-600 px-4 py-3 font-bold text-white transition hover:bg-emerald-700 dark:bg-emerald-500 dark:hover:bg-emerald-600">
       Apply Filters
     </button>
   </form>
