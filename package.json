@@ -1,9 +1,9 @@
 {
   "scripts": {
-    "dev": "node server/app.js",
-    "start": "node server/app.js",
+    "dev": "node server/local.js",
+    "start": "node server/local.js",
     "frontend": "cd frontend && npm start -- --port 4200 --poll 2000",
-    "backend": "node server/app.js",
+    "backend": "node server/local.js",
     "dev:all": "concurrently \"npm run backend\" \"npm run frontend\" --kill-others-on-exit"
   },
   "dependencies": {

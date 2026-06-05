@@ -8,14 +8,16 @@
   ],
   "routes": [
     {
+      "src": "/health",
+      "dest": "/app.js"
+    },
+    {
       "src": "/api/(.*)",
       "dest": "/app.js"
+    },
+    {
+      "src": "/(.*)",
+      "dest": "/app.js"
     }
-  ],
-  "env": {
-    "MONGODB_URI": "@MONGODB_URI",
-    "JWT_SECRET": "@JWT_SECRET",
-    "FRONTEND_ORIGIN": "@FRONTEND_ORIGIN",
-    "GEMINI_API_KEY": "@GEMINI_API_KEY"
-  }
+  ]
 }

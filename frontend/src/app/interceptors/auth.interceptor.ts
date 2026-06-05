@@ -10,6 +10,7 @@ import { Observable, throwError } from 'rxjs';
 import { catchError } from 'rxjs/operators';
 import { AuthService } from '../services/auth.service';
 import { Router } from '@angular/router';
+import { environment } from '../../environments/environment';
 
 @Injectable()
 export class AuthInterceptor implements HttpInterceptor {
@@ -19,18 +20,22 @@ export class AuthInterceptor implements HttpInterceptor {
   ) { }
 
   intercept(request: HttpRequest<unknown>, next: HttpHandler): Observable<HttpEvent<unknown>> {
-    // Add token to request if available
     const token = this.authService.getToken();
-    request = request.clone({
-      withCredentials: true,
-      setHeaders: token ? {
-        Authorization: `Bearer ${token}`
-      } : {}
-    });
+    const isApiRequest =
+      request.url.startsWith(environment.apiUrl) ||
+      request.url.startsWith('/api/');
+
+    if (isApiRequest) {
+      request = request.clone({
+        withCredentials: true,
+        setHeaders: token ? {
+          Authorization: `Bearer ${token}`
+        } : {}
+      });
+    }
 
     return next.handle(request).pipe(
       catchError((error: HttpErrorResponse) => {
-        // Handle 401 Unauthorized
         if (error.status === 401) {
           this.authService.logout();
           this.router.navigate(['/login']);
